@@ -137,7 +137,7 @@ export default {
   },
   async mounted() {
     const token = localStorage.getItem("token");
-    const endpoint = `${import.meta.env.VITE_REST_URL}my-orders`;
+    const endpoint = `${import.meta.env.VITE_REST_URL}/my-orders`;
 
     try {
       const res = await axios.get(endpoint, {

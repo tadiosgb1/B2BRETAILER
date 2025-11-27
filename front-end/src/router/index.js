@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from '../views/opened/landing/Home.vue';
 import ProductDetail  from "../views/opened/landing/ProductDetail.vue";
 import Orders from "../views/closed/orders/view.vue"
+import MyCarts from "../views/closed/MyCarts/view.vue"
+import Account from "../views/closed/Account/view.vue"
+
 import Login from '../views/opened/auth/login.vue';
 import ContactUs from '../views/opened/landing/contactUs.vue';
 import Services from '../views/opened/landing/services.vue';
@@ -39,6 +42,16 @@ const routes = [
         component: Orders,
       },
 
+      {
+        path: "/my-carts",
+        name: "my-carts",
+        component: MyCarts,
+      },
+      {
+        path: "/account",
+        name: "account",
+        component: Account,
+      },
 
   { path: "/login", name: "login", component: Login, meta: { requiresGuest: true } },
   { path: "/register", name: "register", component: Registration, meta: { requiresGuest: true } },

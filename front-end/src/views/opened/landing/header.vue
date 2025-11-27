@@ -8,9 +8,13 @@
       </div>
       
  <div class="flex items-center space-x-6 text-sm">
-
+    <a href="/" class="group transition-all duration-200">
+      <i class="fa-solid fa-home text-2xl text-orange-500
+                 transition-all duration-200
+                 group-hover:text-orange-600 group-hover:scale-125"></i>
+    </a>
     <!-- Cart -->
-    <a href="/cart" class="group transition-all duration-200">
+    <a href="/my-carts" class="group transition-all duration-200">
       <i class="fa-solid fa-cart-shopping text-2xl text-orange-500
                  transition-all duration-200
                  group-hover:text-orange-600 group-hover:scale-125"></i>
