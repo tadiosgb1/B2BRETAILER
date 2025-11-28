@@ -1,8 +1,7 @@
 <template>
   <div class="bg-white p-6 rounded shadow-md ">
     <h2 class="text-lg font-semibold mb-4">Change Password</h2>
-
-    <form @submit.prevent="submitPasswordChange">
+    <form @submit.prevent="submitPasswordChange" class="lg:w-1/2">
       <label class="block mb-2">Current Password</label>
       <input v-model="form.current" type="password" class="w-full border rounded p-2 mb-4" required>
 

@@ -5,9 +5,16 @@
     <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
       <!-- Loading / Not Found -->
-      <div v-if="loading" class="text-center py-16 text-gray-500 font-medium text-lg">
-        <i class="fas fa-spinner fa-spin mr-2"></i> Loading product details...
+    <div
+        v-if="loading"
+        class="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50"
+      >
+        <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center">
+          <div class="loader mb-3"></div>
+          <span class="text-gray-700 font-semibold">Loading your product detail...</span>
+        </div>
       </div>
+
       <div v-else-if="!product" class="text-center py-16 text-red-600 font-semibold text-xl">
         <i class="fas fa-exclamation-triangle mr-2"></i> Product not found. Please check the URL.
       </div>
@@ -24,6 +31,12 @@
               <img :src="selectedImage" alt="Main Product Image"
                    class="w-full h-full object-contain p-4 bg-gray-50 transition duration-300 transform hover:scale-[1.01]" />
 
+              <!-- Image fraction -->
+              <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm font-semibold">
+                {{ selectedIndex + 1 }}/{{ totalImages }}
+              </div>
+
+              <!-- Navigation -->
               <button @click.stop="prevImage"
                       :disabled="selectedIndex === 0"
                       class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white text-gray-700 p-2 rounded-full shadow-lg hover:bg-orange-100 transition z-10 text-base disabled:opacity-50 disabled:cursor-not-allowed">
@@ -34,6 +47,16 @@
                       class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white text-gray-700 p-2 rounded-full shadow-lg hover:bg-orange-100 transition z-10 text-base disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="fas fa-chevron-right"></i>
               </button>
+            </div>
+
+            <!-- Small images scrollable -->
+            <div v-if="product.images?.length" class="flex gap-2 overflow-x-auto py-2">
+              <div v-for="(img, index) in product.images" :key="index"
+                   class="flex-shrink-0 w-20 h-20 rounded-lg border border-gray-200 overflow-hidden cursor-pointer"
+                   :class="{'ring-2 ring-orange-500': selectedIndex === index}"
+                   @click="selectedIndex = index">
+                <img :src="img.original_url" class="w-full h-full object-cover" />
+              </div>
             </div>
           </div>
 
@@ -50,9 +73,9 @@
               </p>
 
               <div class="mt-3">
-                <span class="inline-flex items-center px-4 py-2 text-3xl font-black bg-orange-600 text-white rounded-lg shadow-md shadow-orange-300/50">
-                  <i class="fas fa-money-bill-wave mr-3 text-2xl"></i> 
-                  ${{ product.skus[0].sell_price }}
+                <span class="inline-flex items-center px-4 py-2 text-xl font-black bg-orange-600 text-white rounded-lg shadow-md shadow-orange-300/50">
+ 
+                  {{ product.skus[0].sell_price }} ETB
                 </span>
               </div>
             </div>
@@ -140,12 +163,7 @@
               </div>
             </div>
 
-          </div>
-        </div> 
-
-        <hr class="border-gray-100">
-
-        <!-- Product Description -->
+              <!-- Product Description -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center border-b pb-2">
             <i class="fas fa-book-open text-orange-500 mr-3"></i> Product Description
@@ -221,8 +239,15 @@
           </button>
         </div>
 
+          </div>
+        </div> 
+
+        <hr class="border-gray-100">
+
+      
+
         <!-- Related Products -->
-        <div v-if="relatedProducts.length" class="pt-6 border-t border-gray-200 mt-8">
+        <div  class="pt-6 border-t border-gray-200 mt-8">
           <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
             <i class="fas fa-sitemap text-orange-500 mr-3"></i> Related Products
           </h2>
@@ -330,6 +355,43 @@ export default {
     }
   },
   methods: {
+    async fetchRelatedProducts(categoryId, excludeProductId) {
+    const endpoint = import.meta.env.VITE_GRAPHQL_URL;
+
+    const query = gql`
+      query ($first: Int!, $page: Int!, $categoryId: String!) {
+        products(
+          first: $first
+          page: $page
+          orderBy: [{ column: "created_at", order: DESC }]
+          category_id: $categoryId
+        ) {
+          data {
+            id
+            name
+            imageUrl
+            category { id name }
+          }
+        }
+      }
+    `;
+
+    const variables = { first: 12, page: 1, categoryId };
+
+    try {
+      const data = await request(endpoint, query, variables);
+      this.relatedProducts = data.products.data
+        .filter(p => p.id !== excludeProductId) // exclude current product
+        .map(p => ({
+          id: p.id,
+          name: p.name,
+          imageSrc: p.imageUrl || "https://via.placeholder.com/150?text=No+Image",
+          categoryName: p.category.name
+        }));
+    } catch (err) {
+      console.error(`Failed to fetch related products for category ${categoryId}:`, err);
+    }
+  },
     nextImage() { if (this.selectedIndex < this.totalImages - 1) this.selectedIndex++; },
     prevImage() { if (this.selectedIndex > 0) this.selectedIndex--; },
     openModal(img) { this.modalImage = img; this.modalOpen = true; },
@@ -338,20 +400,68 @@ export default {
     closeReviewModal() { this.ReviewModalOpen = false; },
     submitReview() { alert(`Submitted ${this.reviewRating} stars review: "${this.reviewText}"`); this.closeReviewModal(); },
     onAddedToCart() { alert("Product added to cart successfully!"); },
-    goToProductDetail(p) { /* Navigate to product */ console.log("Go to", p); }
+    goToProductDetail(p) { console.log("Go to", p); }
   },
   async mounted() {
-    try {
-      const productId = this.$route.params.id;
-      const endpoint = import.meta.env.VITE_GRAPHQL_URL;
-      const query = gql`query { product(id: "${productId}") { id name short_description description skus { id sku sell_price stockCount } images { original_url } category { name } attributes { id name values { id value } } total_reviews product_type minimum_order_quantity discount { id discount_value discount_value_type end_date } delivery_estimation { warehouse { id name } min_period max_period period_type } } }`;
-      const res = await request(endpoint, query);
-      this.product = res.product;
-    } catch (err) {
-      console.error(err);
-    } finally {
-      this.loading = false;
+  try {
+    const productId = this.$route.params.id;
+    const endpoint = import.meta.env.VITE_GRAPHQL_URL;
+
+    // Fetch the main product
+    const productQuery = gql`
+      query ($id: ID!) {
+        product(id: $id) {
+          id
+          name
+          short_description
+          description
+          skus { id sku sell_price stockCount }
+          images { original_url }
+          category { id name }
+          attributes { id name values { id value } }
+          total_reviews
+          product_type
+          minimum_order_quantity
+          discount { id discount_value discount_value_type end_date }
+          delivery_estimation { warehouse { id name } min_period max_period period_type }
+        }
+      }
+    `;
+    const res = await request(endpoint, productQuery, { id: productId });
+    this.product = res.product;
+
+    // Fetch related products by category
+    if (this.product?.category?.id) {
+      await this.fetchRelatedProducts(this.product.category.id, productId);
     }
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    this.loading = false;
   }
+},
 };
 </script>
+
+<style scoped>
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #f97316; /* orange-500 */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Optional: scrollbar for small images */
+::-webkit-scrollbar {
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 3px;
+}
+
+</style>

@@ -2,7 +2,7 @@
   <div class="bg-white p-6 rounded shadow-md">
     <h2 class="text-lg font-semibold mb-4">Edit Account Info</h2>
 
-    <form v-if="form" @submit.prevent="submitUpdate">
+    <form v-if="form" @submit.prevent="submitUpdate" class="lg:w-1/2">
       <label class="block mb-1">Name</label>
       <input
         v-model="form.name"

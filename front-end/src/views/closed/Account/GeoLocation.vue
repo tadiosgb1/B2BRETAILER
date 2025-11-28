@@ -2,39 +2,71 @@
   <div class="bg-white p-6 rounded shadow-md">
     <h2 class="text-lg font-semibold mb-4">Edit Geo Location</h2>
 
-    <form v-if="form" @submit.prevent="submitUpdate">
-      <label>Name</label>
-      <input v-model="form.name" type="text" class="w-full border rounded p-2 mb-4">
-
-      <label>Region</label>
-      <input v-model="form.region" type="text" class="w-full border rounded p-2 mb-4">
-
-      <label>City</label>
-      <input v-model="form.city" type="text" class="w-full border rounded p-2 mb-4">
-
-      <label>Location</label>
-      <div class="flex gap-2 mb-4">
-        <input v-model="form.location" type="text" class="flex-1 border rounded p-2" readonly>
-        <button @click.prevent="getLocation" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
-          Get Location
-        </button>
+    <form v-if="form" @submit.prevent="submitUpdate" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- Row 1 -->
+      <div>
+        <label class="block mb-1 font-medium">Name</label>
+        <input v-model="form.name" type="text" class="w-full border rounded p-2">
+      </div>
+      <div>
+        <label class="block mb-1 font-medium">Region</label>
+        <input v-model="form.region" type="text" class="w-full border rounded p-2">
       </div>
 
-      <label>Street Address</label>
-      <input v-model="form.address" type="text" class="w-full border rounded p-2 mb-4">
+      <!-- Row 2 -->
+      <div>
+        <label class="block mb-1 font-medium">City</label>
+        <input v-model="form.city" type="text" class="w-full border rounded p-2">
+      </div>
+      <div class="col-span-1 sm:col-span-1">
+        <label class="block mb-1 font-medium">Street Address</label>
+        <input v-model="form.address" type="text" class="w-full border rounded p-2">
+      </div>
 
-      <label>Contact Phone</label>
-      <input v-model="form.contactPhone" type="text" class="w-full border rounded p-2 mb-4">
+      <!-- Row 3: Location full width -->
+      <div class="sm:col-span-2">
+        <label class="block mb-1 font-medium">Location</label>
+        <div class="flex gap-2">
+          <input
+            v-model="form.location"
+            type="text"
+            class="flex-1 border rounded p-2"
+            readonly
+          >
+          <button
+            @click.prevent="getLocation"
+            class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+          >
+            Get Location
+          </button>
+        </div>
+      </div>
 
-      <label>Contact Email</label>
-      <input v-model="form.contactEmail" type="email" class="w-full border rounded p-2 mb-4">
+      <!-- Row 4 -->
+      <div>
+        <label class="block mb-1 font-medium">Contact Phone</label>
+        <input v-model="form.contactPhone" type="text" class="w-full border rounded p-2">
+      </div>
+      <div>
+        <label class="block mb-1 font-medium">Contact Email</label>
+        <input v-model="form.contactEmail" type="email" class="w-full border rounded p-2">
+      </div>
 
-      <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">Save</button>
+      <!-- Submit Button full width -->
+      <div class="sm:col-span-2">
+        <button
+          type="submit"
+          class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full"
+        >
+          Save
+        </button>
+      </div>
     </form>
 
     <p v-else>Loading geo location...</p>
   </div>
 </template>
+
 
 <script>
 import axios from "axios";

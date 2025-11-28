@@ -161,7 +161,7 @@ async createC2BOrder(amount) {
    // window.location.href = `https://app.telebirr.com/checkout/pay?prepay_id=${prepayId}`;
   } catch (err) {
     console.error("C2B order error:", err);
-    alert("Failed to create C2B order.");
+    //alert("Failed to create C2B order.");
   }
 }
 ,
