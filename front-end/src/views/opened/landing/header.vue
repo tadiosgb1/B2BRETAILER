@@ -1,46 +1,48 @@
 <template>
   <header class="w-full bg-white shadow-md">
-    <div
-      class="container mx-auto py-3 px-4 flex items-center justify-between border-b border-gray-100"
+  <div
+  class="container mx-auto py-3 px-4 flex flex-wrap items-center justify-between gap-4 border-b border-gray-100"
+>
+  <!-- Logo -->
+  <div class="flex items-center">
+    <h1 class="text-2xl font-bold text-orange-600">Ant Retailer</h1>
+  </div>
+
+  <!-- Menu -->
+  <div class="flex flex-wrap items-center gap-4 text-sm justify-center md:justify-end w-full md:w-auto">
+
+    <a
+      href="/login"
+      class="px-4 py-2 text-orange-600 font-semibold border border-orange-500 rounded-lg hover:bg-orange-500 hover:text-white transition"
     >
-      <div class="flex items-center">
-        <h1 class="text-2xl font-bold text-orange-600">Ant Retailer </h1>
-      </div>
-      
- <div class="flex items-center space-x-6 text-sm">
-    <a href="/" class="group transition-all duration-200">
-      <i class="fa-solid fa-home text-2xl text-orange-500
-                 transition-all duration-200
-                 group-hover:text-orange-600 group-hover:scale-125"></i>
-    </a>
-    <!-- Cart -->
-    <a href="/my-carts" class="group transition-all duration-200">
-      <i class="fa-solid fa-cart-shopping text-2xl text-orange-500
-                 transition-all duration-200
-                 group-hover:text-orange-600 group-hover:scale-125"></i>
+      Login
     </a>
 
-    <!-- Orders -->
-    <a href="/orders" class="group transition-all duration-200">
-      <i class="fa-solid fa-box text-2xl text-orange-500
-                 transition-all duration-200
-                 group-hover:text-orange-600 group-hover:scale-125"></i>
+    <a
+      href="/register"
+      class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition"
+    >
+      Register
     </a>
 
-    <!-- Account -->
-    <a href="/account" class="group transition-all duration-200">
-      <i class="fa-regular fa-user text-2xl text-orange-500
-                 transition-all duration-200
-                 group-hover:text-orange-600 group-hover:scale-125"></i>
+    <a href="/" class="group">
+      <i class="fa-solid fa-home text-2xl text-orange-500 group-hover:text-orange-600 transition"></i>
+    </a>
+
+    <a href="/my-carts" class="group">
+      <i class="fa-solid fa-cart-shopping text-2xl text-orange-500 group-hover:text-orange-600 transition"></i>
+    </a>
+
+    <a href="/orders" class="group">
+      <i class="fa-solid fa-box text-2xl text-orange-500 group-hover:text-orange-600 transition"></i>
+    </a>
+
+    <a href="/account" class="group">
+      <i class="fa-regular fa-user text-2xl text-orange-500 group-hover:text-orange-600 transition"></i>
     </a>
 
   </div>
-
-
-
-
-    </div>
-
+</div>
     <nav class="bg-white">
       <div
         class="container mx-auto px-4 flex items-center justify-between text-sm font-medium"
@@ -61,8 +63,7 @@
             All categories
           </a>
 
-          <a href="#" class="py-3 hover:text-green-600">Returned Products</a>
-    
+       
 
           <div
             v-if="showMegaMenu"

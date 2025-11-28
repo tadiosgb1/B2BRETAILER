@@ -1,14 +1,17 @@
 <template>
   <router-view :key="$route.fullPath"></router-view>
+   <AuthRequiredModal />
     <Toast ref="toast" />
 </template>
 
 <script>
 import '@fortawesome/fontawesome-free/css/all.css';
 import Toast from './components/Toast1.vue';
+import AuthRequiredModal from "./components/AuthRequiredModal.vue";
 export default {
   components: {
     Toast,
+    AuthRequiredModal
   },
   data() {
     return {

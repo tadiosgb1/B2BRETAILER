@@ -119,199 +119,15 @@ export default {
       showTitle: false,
       is_superuser: false,
       openSubmenus: [],
-
-      /* ============= CLEAN & RESTRUCTURED MENU ============= */
-
       menuItems: [
-        {
-          name: "Teams",
-          route: "Teams-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Users",
-          route: "Users-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Subscribers",
-          route: "Subscribers-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Awards",
-          route: "Awards-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Contacts",
-          route: "Contacts-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Services",
-          route: "Services-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Partners",
-          route: "Partners-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "News",
-          route: "News-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Events",
-          route: "Events-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Categories",
-          route: "Categories-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Galleries",
-          route: "Galleries-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Testimonials",
-          route: "Testimonials-view",
-          icon: "fas fa-folder",
-          color: "#22c55e",
-        },
-
-        {
-          name: "Dashboard",
-          route: "first-dash",
-          icon: "fas fa-gauge",
-          color: "#f97316",
-        },
-        {
-          name: "Commission",
-          route: "commissions",
-          icon: "fas fa-gauge",
-          color: "#f97316",
-        },
-
-        {
-          name: "Sites",
-          route: "Sites-view",
-          icon: "fas fa-gauge",
-          color: "#f97316",
-        },
-
-        {
-          name: "Properties",
-          route: "Property-view",
-          icon: "fas fa-gauge",
-          color: "#f97316",
-        },
-
-        {
-          name: "System Settings",
-          icon: "fas fa-cogs",
-          color: "#22c55e",
-          children: [
-            {
-              name: "Configurations",
-              route: "configurations",
-              icon: "fas fa-gear",
-              color: "#22c55e",
-            },
-          ],
-        },
-
-        /* USER MANAGEMENT SECTION */
-
-        {
-          name: "Staff Management",
-          icon: "fas fa-users-cog",
-          color: "#22c55e",
-          children: [
-            {
-              name: "Users",
-              route: "users",
-              icon: "fas fa-user",
-              color: "#60a5fa",
-            },
-            {
-              name: "Roles",
-              route: "roles",
-              icon: "fas fa-layer-group",
-              color: "#60a5fa",
-            },
-            {
-              name: "Permissions",
-              route: "permissions",
-              icon: "fas fa-shield-halved",
-              color: "#10b981",
-            },
-
-            // {
-            //   name: "Logined History",
-            //   route: "permissions_view",
-            //   icon: "fas fa-shield-halved",
-            //   color: "#10b981",
-            // },
-          ],
-        },
-
-        {
-          name: "Notifications",
-          route: "notifications",
-          icon: "fas fa-bell",
-          color: "#22c55e",
-        },
-        // {
-        //   name: "Messages",
-        //   route: "messages",
-        //   icon: "fas fa-tags",
-        //   color: "#22c55e",
-        // },
-
-        // {
-        //   name: "Inbox",
-        //   route: "inbox",
-        //   icon: "fas fa-tags",
-        //   color: "#22c55e",
-        // },
       ],
     };
   },
-
   computed: {
     filteredMenuItems() {
       return this.menuItems;
     },
   },
-
   methods: {
     toggleSubmenu(name) {
       if (this.openSubmenus.includes(name)) {
@@ -324,7 +140,6 @@ export default {
       return this.openSubmenus.includes(name);
     },
   },
-
   mounted() {
     this.is_superuser = localStorage.getItem("is_superuser") === "true";
     if (window.innerWidth < 1024) {

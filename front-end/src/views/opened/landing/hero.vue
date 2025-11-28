@@ -1,10 +1,15 @@
 <template>
-  <section class="relative overflow-hidden py-10 bg-white">
+  <section
+    class="relative overflow-hidden py-10 bg-cover bg-center bg-no-repeat"
+    :style="{ backgroundImage: `url(${heroBg})` }"
+  >
+    <!-- Dark overlay with opacity -->
+    <div class="absolute inset-0 bg-black  opacity-60 lg:opacity-70"></div>
+
     <div
       class="relative z-10 max-w-5xl mx-auto px-6 text-center animate-fadeIn"
     >
-      <!-- Small Welcome Text -->
-      <p class="text-green-600 font-semibold tracking-wide text-lg mb-4">
+      <p class="text-white font-semibold tracking-wide text-lg mb-4">
         Welcome to AntB2B — Your Trusted Wholesale Marketplace
       </p>
     </div>
@@ -12,8 +17,15 @@
 </template>
 
 <script>
+import heroBg from "../../../assets/img/hero/bgg.jpg"; // your image
+
 export default {
   name: "B2BHero",
+  data() {
+    return {
+      heroBg,
+    };
+  },
 };
 </script>
 

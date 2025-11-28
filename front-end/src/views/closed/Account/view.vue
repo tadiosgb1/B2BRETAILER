@@ -135,9 +135,17 @@ export default {
     },
 
     logout() {
-      localStorage.removeItem("token");
-      window.location.href="/login";
-    },
+    // Clear all local storage items
+    localStorage.clear();
+
+    // Optionally, you can also clear sessionStorage if used
+    sessionStorage.clear();
+
+    // Redirect to login page
+    this.$router.push("/login"); // Vue Router navigation
+    // OR, if you want a full page reload:
+    // window.location.href = "/login";
+  }
   },
 };
 </script>
