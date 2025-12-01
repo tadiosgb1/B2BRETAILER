@@ -197,6 +197,7 @@ export default {
       //  alert("Geo location updated successfully!");
 
         this.$root.$refs.toast.showToast('Geolocation edited successfully', 'success');
+        
       } catch (err) {
         console.error(err);
         this.$root.$refs.toast.showToast( 'Geolocation edit failed', 'error');
