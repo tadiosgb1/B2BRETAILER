@@ -158,10 +158,12 @@ export default {
         localStorage.setItem("roles", JSON.stringify(roles));
         localStorage.setItem("permissions", JSON.stringify(permissions));
 
-        this.$refs.toast?.showSuccessToastMessage("Login successful!");
+          this.$root.$refs.toast.showToast('Login successfull', 'success');
+
         this.$router.push("/");
       } catch (err) {
         this.error = err.message || "Login failed";
+        this.$root.$refs.toast.showToast(this.error.message || "login failed", 'error');
       } finally {
         this.loading = false;
       }

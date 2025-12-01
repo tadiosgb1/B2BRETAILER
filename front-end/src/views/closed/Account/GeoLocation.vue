@@ -24,9 +24,9 @@
       </div>
 
       <!-- Row 3: Location full width -->
-      <div class="sm:col-span-2">
+      <div class="gap-2">
         <label class="block mb-1 font-medium">Location</label>
-        <div class="flex gap-2">
+        <div class="flex flex-col lg:flex-row gap-2">
           <input
             v-model="form.location"
             type="text"
@@ -45,11 +45,11 @@
       <!-- Row 4 -->
       <div>
         <label class="block mb-1 font-medium">Contact Phone</label>
-        <input v-model="form.contactPhone" type="text" class="w-full border rounded p-2">
+        <input v-model="form.contact_phone" type="text" class="w-full border rounded p-2">
       </div>
       <div>
         <label class="block mb-1 font-medium">Contact Email</label>
-        <input v-model="form.contactEmail" type="email" class="w-full border rounded p-2">
+        <input v-model="form.contact_email" type="email" class="w-full border rounded p-2">
       </div>
 
       <!-- Submit Button full width -->
@@ -80,9 +80,11 @@ export default {
       geoId: null,
     };
   },
+
   async mounted() {
     await this.fetchGeoData();
   },
+
   methods: {
     async fetchGeoData() {
       try {
@@ -93,19 +95,21 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log("profile res",res);
+        console.log("profile response:", res);
 
-        // Map REST API fields to form
         this.geoId = res.data.id;
+
+        const lat = res.data._geo?.lat || "";
+        const lng = res.data._geo?.lng || "";
+
         this.form = {
           name: res.data.name || "",
           region: res.data.region?.name || "",
           city: res.data.city || "",
-          // format backend geo {lat, lng} as "lat,lng"
-          location: res.data._geo ? `${res.data._geo.lat},${res.data._geo.lng}` : "",
           address: res.data.address || "",
-          contactPhone: res.data.contact_phone || "",
-          contactEmail: res.data.contact_email || "",
+          contact_phone: res.data.contact_phone || "",
+          contact_email: res.data.contact_email || "",
+          location: lat && lng ? `${lat},${lng}` : ""
         };
       } catch (err) {
         console.error(err);
@@ -115,20 +119,19 @@ export default {
 
     getLocation() {
       if (!navigator.geolocation) {
-        alert("Geolocation is not supported by this browser.");
+        alert("Geolocation is not supported.");
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = pos.coords.latitude.toFixed(6);
-          const lng = pos.coords.longitude.toFixed(6);
+          const lat = Number(pos.coords.latitude.toFixed(6));
+          const lng = Number(pos.coords.longitude.toFixed(6));
+
+          // template expects STRING
           this.form.location = `${lat},${lng}`;
         },
-        (err) => {
-          console.error(err);
-          alert("Failed to get current location. Please allow location access.");
-        }
+        () => alert("Failed to get location — please allow permission.")
       );
     },
 
@@ -138,37 +141,39 @@ export default {
       try {
         const token = localStorage.getItem("token");
 
+        // convert "lat,lng" string → { lat, lng }
+        let geo = null;
+        if (this.form.location.includes(",")) {
+          const [lat, lng] = this.form.location.split(",");
+          geo = {
+            lat: Number(lat),
+            lng: Number(lng),
+          };
+        }
+
         const mutation = gql`
-          mutation (
-            $id: ID!,
-            $name: String!,
-            $region: String!,
-            $city: String!,
-            $location: String!,
-            $address: String!,
-            $contactPhone: String!,
-            $contactEmail: String
+          mutation(
+            $id: ID!
+            $name: String!
+            $address: String!
+            $_geo: GeoInput
+            $city: String
+            $contact_name: String!
+            $contact_phone: String!
           ) {
-            updateGeoLocation(
-              id: $id,
+            updateRetailer(
+              id: $id
               input: {
-                name: $name,
-                region: $region,
-                city: $city,
-                location: $location,
-                address: $address,
-                contactPhone: $contactPhone,
-                contactEmail: $contactEmail
+                name: $name
+                address: $address
+                _geo: $_geo
+                city: $city
+                contact_name: $contact_name
+                contact_phone: $contact_phone
               }
             ) {
               id
               name
-              region
-              city
-              location
-              address
-              contactPhone
-              contactEmail
             }
           }
         `;
@@ -176,12 +181,11 @@ export default {
         const variables = {
           id: this.geoId,
           name: this.form.name,
-          region: this.form.region,
+          address: this.form.address,
+          _geo: geo,
           city: this.form.city,
-          location: this.form.location,
-          street: this.form.street,
-          contactPhone: this.form.contactPhone,
-          contactEmail: this.form.contactEmail,
+          contact_name: this.form.contact_name ?? this.form.contact_phone, // adjust as needed
+          contact_phone: this.form.contact_phone,
         };
 
         const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_URL;
@@ -190,12 +194,15 @@ export default {
           Authorization: `Bearer ${token}`,
         });
 
-        alert("Geo location updated successfully!");
+      //  alert("Geo location updated successfully!");
+
+        this.$root.$refs.toast.showToast('Geolocation edited successfully', 'success');
       } catch (err) {
         console.error(err);
-        alert("Failed to update geo location.");
+        this.$root.$refs.toast.showToast( 'Geolocation edit failed', 'error');
       }
     },
   },
 };
 </script>
+

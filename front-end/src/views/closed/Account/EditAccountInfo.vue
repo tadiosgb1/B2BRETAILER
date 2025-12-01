@@ -12,10 +12,10 @@
       />
 
       <label class="block mb-1">Phone</label>
-      <input
+      <input disabled
         v-model="form.phone"
         type="text"
-        class="w-full border rounded p-2 mb-4"
+        class="w-full border rounded p-2 mb-4 "
         required
       />
 
@@ -90,14 +90,12 @@ export default {
             $id: ID!,
             $name: String!,
             $email: String,
-            $phone: String!
           ) {
             updateUser(
               id: $id,
               input: {
                 name: $name,
                 email: $email,
-                phone: $phone
                 # profile_image: Upload! // add if needed
               }
             ) {
@@ -118,14 +116,17 @@ export default {
 
         const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_URL;
 
-        await request(graphqlEndpoint, mutation, variables, {
+      const res=  await request(graphqlEndpoint, mutation, variables, {
           Authorization: `Bearer ${token}`,
         });
 
-        alert("Account updated successfully!");
+        if(res){
+            this.$root.$refs.toast.showToast('Edited successfully', 'success');
+        }
+
       } catch (err) {
         console.error(err);
-        alert("Failed to update account.");
+        this.$root.$refs.toast.showToast('Editing failed', 'error');
       }
     },
   },

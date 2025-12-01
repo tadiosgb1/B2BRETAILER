@@ -84,7 +84,7 @@
             >
               <img
                 v-if="item.product_sku.product.media.length"
-                :src="item.product_sku.product.media[0].original_url"
+                :src="proxiedImage(item.product_sku.product.media[0].original_url)"
                 alt="Product"
                 class="w-24 h-24 object-cover rounded-lg shadow-sm"
               />
@@ -146,6 +146,18 @@ export default {
   },
 
   methods: {
+     proxiedImage(url) {
+    if (!url) return '/placeholder.png';
+
+    // Check Vite mode: 'development' or 'production'
+    if (import.meta.env.MODE === 'production') {
+      // In production, remove backend domain so HTTPS frontend works
+      return url.replace(/^http:\/\/78\.47\.138\.239:8080/, '');
+    } else {
+      // In development, use full URL (local dev backend)
+      return url;
+    }
+  },
     statusClass(status) {
       switch (status) {
         case "ORDERED": return "bg-blue-500";

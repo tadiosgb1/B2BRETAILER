@@ -28,7 +28,7 @@
           <div class="md:col-span-5 relative">
             <div class="w-full h-96 rounded-xl overflow-hidden mb-4 cursor-pointer border border-gray-200 relative"
                  @click="openModal(selectedImage)">
-              <img :src="selectedImage" alt="Main Product Image"
+              <img :src="proxiedImage(selectedImage)" alt="Main Product Image"
                    class="w-full h-full object-contain p-4 bg-gray-50 transition duration-300 transform hover:scale-[1.01]" />
 
               <!-- Image fraction -->
@@ -55,7 +55,7 @@
                    class="flex-shrink-0 w-20 h-20 rounded-lg border border-gray-200 overflow-hidden cursor-pointer"
                    :class="{'ring-2 ring-orange-500': selectedIndex === index}"
                    @click="selectedIndex = index">
-                <img :src="img.original_url" class="w-full h-full object-cover" />
+                <img :src="proxiedImage(img.original_url)" class="w-full h-full object-cover" />
               </div>
             </div>
           </div>
@@ -78,6 +78,50 @@
                   {{ product.skus[0].sell_price }} ETB
                 </span>
               </div>
+              <div class="mt-3 flex items-center">
+  <!-- Stars -->
+  <div class="flex space-x-1">
+    <!-- Loop 5 times for 5 stars -->
+    <template v-for="i in 5" :key="i">
+      <svg
+        v-if="i <= Math.floor(product.rate)"
+        class="w-6 h-6 text-yellow-400"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.962a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.963c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.963a1 1 0 00-.364-1.118L2.067 9.39c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.962z" />
+      </svg>
+      <svg
+        v-else-if="i - product.rate < 1"
+        class="w-6 h-6 text-yellow-400"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <defs>
+          <linearGradient id="half">
+            <stop offset="50%" stop-color="currentColor" />
+            <stop offset="50%" stop-color="transparent" />
+          </linearGradient>
+        </defs>
+        <path fill="url(#half)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.962a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.963c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.963a1 1 0 00-.364-1.118L2.067 9.39c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.962z"/>
+      </svg>
+      <svg
+        v-else
+        class="w-6 h-6 text-gray-300"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.962a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.963c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.963a1 1 0 00-.364-1.118L2.067 9.39c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.962z" />
+      </svg>
+    </template>
+  </div>
+
+  <!-- Numeric rating -->
+  <span class="ml-3 px-2 py-1 text-sm font-bold bg-orange-600 text-white rounded-lg shadow-md shadow-orange-300/50">
+    {{ product.rate.toFixed(1) }}
+  </span>
+</div>
+
             </div>
 
             <!-- Product Meta -->
@@ -177,14 +221,19 @@
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center border-b pb-2 justify-between">
             <span><i class="fas fa-comments text-orange-500 mr-3"></i> Product Reviews ({{ product.total_reviews ?? 0 }})</span>
-            <button @click="openReviewModal"
+            <button v-if="token" @click="openReviewModal"
                     class="px-4 py-2 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-600 transition">
               Review Product
             </button>
           </h2>
-          <div v-if="product.total_reviews > 0" class="text-gray-600">
-            <p>Showing latest reviews...</p>
-          </div>
+       <div v-if="product.total_reviews > 0" class="text-gray-600">
+          <p>Here latest reviews...</p>
+          <ul class="mt-3 ml-3">
+            <li v-for="r in product.reviews" :key="r.id">
+              {{ r.review }}
+            </li>
+          </ul>
+        </div>
           <p v-else class="text-gray-500 italic">Be the first to review this product.</p>
         </div>
 
@@ -233,7 +282,7 @@
                    class="w-24 p-2 border border-gray-300 rounded-lg text-center focus:border-orange-500 focus:ring-1 focus:ring-orange-500">
           </div>
 
-          <button @click="WarehouseModalOpen = true"
+          <button v-if="token" @click="WarehouseModalOpen = true"
                   class="w-full sm:w-auto px-6 py-3 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition shadow-md shadow-orange-300/50 flex items-center justify-center gap-2">
             <i class="fas fa-warehouse text-lg"></i> Choose Warehouse
           </button>
@@ -255,7 +304,7 @@
             <div v-for="p in relatedProducts.slice(0, 6)" :key="p.id"
                  class="border rounded-lg p-3 hover:shadow-lg transition cursor-pointer bg-white"
                  @click="goToProductDetail(p)">
-              <img :src="p.imageSrc" class="w-full h-24 object-contain rounded mb-2 border border-gray-100" alt="Related Product" />
+              <img :src="proxiedImage(p.imageSrc)" class="w-full h-24 object-contain rounded mb-2 border border-gray-100" alt="Related Product" />
               <h3 class="font-semibold text-sm truncate">{{ p.name }}</h3>
               <p class="text-gray-500 text-xs mt-0.5">{{ p.categoryName }}</p>
             </div>
@@ -270,7 +319,7 @@
           <button @click="closeModal" class="absolute top-2 right-2 text-gray-700 hover:text-orange-500 z-10 p-2">
             <i class="fas fa-times text-2xl"></i>
           </button>
-          <img :src="modalImage" class="w-full h-auto rounded max-h-[90vh]" alt="Enlarged Product Image" />
+          <img :src="proxiedImage(modalImage)" class="w-full h-auto rounded max-h-[90vh]" alt="Enlarged Product Image" />
         </div>
       </div>
 
@@ -298,7 +347,7 @@
                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"></textarea>
             </div>
 
-            <button @click="submitReview"
+            <button @click="submitReview()"
                     :disabled="reviewRating === 0 || reviewText.length < 5"
                     class="w-full py-3 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition disabled:opacity-50">
               Submit Review
@@ -344,6 +393,7 @@ export default {
       reviewText: "",
       placeholderImage: "https://via.placeholder.com/400?text=No+Image",
       relatedProducts: [],
+      token:""
     };
   },
   computed: {
@@ -355,6 +405,18 @@ export default {
     }
   },
   methods: {
+      proxiedImage(url) {
+    if (!url) return '/placeholder.png';
+
+    // Check Vite mode: 'development' or 'production'
+    if (import.meta.env.MODE === 'production') {
+      // In production, remove backend domain so HTTPS frontend works
+      return url.replace(/^http:\/\/78\.47\.138\.239:8080/, '');
+    } else {
+      // In development, use full URL (local dev backend)
+      return url;
+    }
+  },
     async fetchRelatedProducts(categoryId, excludeProductId) {
     const endpoint = import.meta.env.VITE_GRAPHQL_URL;
 
@@ -398,14 +460,68 @@ export default {
     closeModal() { this.modalOpen = false; },
     openReviewModal() { this.ReviewModalOpen = true; },
     closeReviewModal() { this.ReviewModalOpen = false; },
-    submitReview() { alert(`Submitted ${this.reviewRating} stars review: "${this.reviewText}"`); this.closeReviewModal(); },
+
+    async submitReview() {
+
+      console.log("to be submitted");
+
+
+      if (this.reviewRating === 0 || this.reviewText.trim().length < 5) {
+        this.reviewError = "Please provide a rating and a review text (min 5 characters).";
+        return;
+      }
+
+      this.submittingReview = true;
+      this.reviewError = "";
+      const endpoint = import.meta.env.VITE_GRAPHQL_URL;
+      const token = localStorage.getItem("token"); // user must be logged in
+
+      const mutation = gql`
+        mutation($product_id: String!, $rating: Int, $review: String) {
+          createProductReview(input: { product_id: $product_id, rating: $rating, review: $review }) {
+            id
+          }
+        }
+      `;
+
+      const variables = {
+        product_id: this.product.id,
+        rating: this.reviewRating,
+        review: this.reviewText
+      };
+
+
+      try {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const data = await request(endpoint, mutation, variables, headers);
+        if(data){
+           this.$root.$refs.toast.showToast('Reviewed and thanks', 'success');
+        }
+
+        console.log("data",data);
+        this.reviewSuccess = "Review submitted successfully!";
+        this.closeReviewModal();
+
+        // Optionally, refetch product to update review count
+       // await this.fetchProduct(this.product.id);
+
+      } catch (err) {
+        console.error(err);
+        this.reviewError = "Failed to submit review. Please try again.";
+        this.$root.$refs.toast.showToast('Failed', 'error');
+
+      } finally {
+        this.submittingReview = false;
+      }
+    },
     onAddedToCart() { alert("Product added to cart successfully!"); },
     goToProductDetail(p) { console.log("Go to", p); }
   },
   async mounted() {
-  try {
-    const productId = this.$route.params.id;
-    const endpoint = import.meta.env.VITE_GRAPHQL_URL;
+    this.token=localStorage.getItem("token");
+    try {
+      const productId = this.$route.params.id;
+      const endpoint = import.meta.env.VITE_GRAPHQL_URL;
 
     // Fetch the main product
     const productQuery = gql`
@@ -413,6 +529,7 @@ export default {
         product(id: $id) {
           id
           name
+          rate
           short_description
           description
           skus { id sku sell_price stockCount }
@@ -421,6 +538,11 @@ export default {
           attributes { id name values { id value } }
           total_reviews
           product_type
+          reviews {
+            id
+            review
+           
+          }
           minimum_order_quantity
           discount { id discount_value discount_value_type end_date }
           delivery_estimation { warehouse { id name } min_period max_period period_type }
@@ -428,6 +550,9 @@ export default {
       }
     `;
     const res = await request(endpoint, productQuery, { id: productId });
+
+    console.log("res",res);
+
     this.product = res.product;
 
     // Fetch related products by category

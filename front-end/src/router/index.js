@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
+import Shop from '../views/opened/landing/Shop.vue';
+
 import Home from '../views/opened/landing/Home.vue';
+
 import ProductDetail from "../views/opened/landing/ProductDetail.vue";
 import Orders from "../views/closed/orders/view.vue";
 import MyCarts from "../views/closed/MyCarts/view.vue";
@@ -17,7 +20,9 @@ import Dashboard from '../views/closed/dashboard.vue';
 import { showAuthModal } from "../components/AuthRequiredModal.vue";
 const routes = [
   // Public routes
+ 
   { path: "/", name: "home", component: Home },
+   { path: "/shop", name: "Shop", component: Shop },
   { path: "/product/:id", name: "ProductDetail", component: ProductDetail, props: true },
   { path: "/login", name: "login", component: Login },
   { path: "/register", name: "register", component: Register },

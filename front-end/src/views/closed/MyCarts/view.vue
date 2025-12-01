@@ -73,7 +73,7 @@
           <div class="flex items-center gap-2 cursor-pointer" @click="productDetail(item.product_sku.product)">
             <input type="checkbox" v-model="item.selected" @click.stop />
             <img
-              :src="item.product_sku.product.imageUrl"
+              :src="proxiedImage(item.product_sku.product.imageUrl)"
               alt=""
               class="w-12 h-12 object-cover rounded"
             />
@@ -164,6 +164,18 @@ export default {
     };
   },
   methods: {
+     proxiedImage(url) {
+    if (!url) return '/placeholder.png';
+
+    // Check Vite mode: 'development' or 'production'
+    if (import.meta.env.MODE === 'production') {
+      // In production, remove backend domain so HTTPS frontend works
+      return url.replace(/^http:\/\/78\.47\.138\.239:8080/, '');
+    } else {
+      // In development, use full URL (local dev backend)
+      return url;
+    }
+  },
     async fetchCarts() {
       this.loading = true;
       try {

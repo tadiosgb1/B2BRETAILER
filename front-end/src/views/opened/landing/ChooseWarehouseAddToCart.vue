@@ -65,11 +65,11 @@ export default {
     },
    async addToCart() {
   console.log("product", this.product);
-
   if (!this.selectedWarehouse) return;
 
   if (this.quantity < (this.product.minimum_order_quantity || 1)) {
-    alert(`Minimum order quantity is ${this.product.minimum_order_quantity || 1}.`);
+   // alert(`Minimum order quantity is ${this.product.minimum_order_quantity || 1}.`);
+      this.$root.$refs.toast.showToast('You can not add lower than than maximamu quanity allowed', 'error');
     return;
   }
 
@@ -102,14 +102,16 @@ export default {
     });
 
     if (data?.createCart) {
-      alert(`Added ${this.quantity} of ${this.product.name} to cart from ${this.selectedWarehouse.name}!`);
+      //alert(`Added ${this.quantity} of ${this.product.name} to cart from ${this.selectedWarehouse.name}!`);
+         this.$root.$refs.toast.showToast('Product added to cart', 'success');
       this.close();
       this.$emit("added"); // parent can refresh cart count or show toast
     }
   } catch (err) {
     console.error(err);
     // graphql-request errors come as "response.errors"
-    alert(err.response?.errors?.[0]?.message || err.message || "Failed to add to cart.");
+    //alert(err.response?.errors?.[0]?.message || err.message || "Failed to add to cart.");
+       this.$root.$refs.toast.showToast(err.message, 'error');
   }
 }
   }

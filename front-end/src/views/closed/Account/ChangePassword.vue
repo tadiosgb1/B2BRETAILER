@@ -83,6 +83,9 @@ export default {
           { Authorization: `Bearer ${token}` }
         );
 
+        if(res){
+          this.$root.$refs.toast.showToast('Password changed successfully', 'success');
+        }
         if (res.updatePassword.status === "SUCCESS") {
           this.successMessage = "Password updated successfully!";
           this.form.current = "";
@@ -93,6 +96,7 @@ export default {
         }
       } catch (err) {
         this.errorMessage = err.response?.errors?.[0]?.message || "Error updating password.";
+        this.$root.$refs.toast.showToast('password change failed', 'error');
       }
     }
   }

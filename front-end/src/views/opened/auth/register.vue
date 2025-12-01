@@ -162,12 +162,19 @@ export default {
         if (!res || !res.register) throw new Error("Invalid server response");
 
         localStorage.setItem("token", res.register.token);
+  
+        this.$root.$refs.toast.showToast('Account is successfully registered and it will be activated soon and you will get email notification.', 'success');
 
-        this.$refs.toast?.showSuccessToastMessage("Account created successfully!");
 
-        this.$router.push("/login");
+        this.$root.$refs.toast.showToast('Account successfully added', 'success');
+
+// Wait 1.5 seconds before redirecting
+          setTimeout(() => {
+            this.$router.push("/login");
+          }, 1500);
       } catch (err) {
-        this.error = err.message || "Registration failed.";
+         this.error = err.message || "Registration failed.";
+         this.$root.$refs.toast.showToast(this.error.message || "registration failed", 'error');
       } finally {
         this.loading = false;
       }

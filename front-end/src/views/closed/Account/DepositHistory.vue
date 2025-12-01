@@ -21,31 +21,55 @@
       </button>
     </div>
 
-    <!-- Slip Deposits -->
+    <!-- SLIP DEPOSITS -->
     <div v-if="activeTab==='slip'" class="flex flex-col gap-4">
       <div v-if="slip.length === 0" class="text-gray-500">No slip deposits found.</div>
 
       <div
         v-for="d in slip"
         :key="d.id"
-        class="bg-white shadow p-4 rounded-lg border border-gray-200"
+        class="bg-white shadow p-4 rounded-lg border border-gray-200 flex flex-col sm:flex-row gap-4"
       >
-        <div class="text-lg font-semibold">
-          Slip #{{ d.id }}
-        </div>
+        <!-- LEFT (or TOP on mobile): Slip Image -->
+        <img
+          v-if="d.slip"
+          :src="d.slip"
+          alt="Slip Image"
+          class="w-full sm:w-40 sm:h-40 object-cover rounded shadow cursor-pointer hover:opacity-80 transition"
+          @click="openModal(d.slip)"
+        />
 
-       <img :src="d.imageUrl" alt="Slip Image" />
-        <div class="text-gray-700">
-          Reference: <span class="font-medium">{{ d.reference_number }}</span>
-        </div>
+        <!-- RIGHT (or BOTTOM on mobile): Slip Details -->
+        <div class="flex flex-col justify-between">
+          <div class="text-lg font-semibold">Slip #{{ d.id }}</div>
 
-        <div class="text-gray-700">
-          Amount: <span class="font-medium">{{ d.amount }} ETB</span>
+          <div class="text-gray-700">
+            Reference: <span class="font-medium">{{ d.reference_number }}</span>
+          </div>
+
+          <div class="text-gray-700">
+            Amount: <span class="font-medium">{{ d.amount }} ETB</span>
+          </div>
+
+          <div class="text-gray-700">
+            Confirmed By:
+            <span class="font-medium">{{ d.confirmed_by ?? "Pending" }}</span>
+          </div>
+
+          <div class="text-gray-700">
+            Confirmed At:
+            <span class="font-medium">{{ formatDate(d.confirmed_at) }}</span>
+          </div>
+
+          <div class="text-gray-700">
+            Created At:
+            <span class="font-medium">{{ formatDate(d.created_at) }}</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Telebirr -->
+    <!-- TELEBIRR (GraphQL — unchanged) -->
     <div v-if="activeTab==='telebirr'" class="flex flex-col gap-4">
       <div v-if="telebirr.length === 0" class="text-gray-500">No Telebirr deposits found.</div>
 
@@ -67,12 +91,26 @@
         </div>
       </div>
     </div>
+
+    <!-- MODAL -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+      @click="closeModal"
+    >
+      <img
+        :src="modalImage"
+        class="max-w-[90%] max-h-[90%] rounded-lg shadow-2xl"
+        @click.stop
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import { request, gql } from "graphql-request";
-import axios from 'axios';
+import axios from "axios";
+
 export default {
   data() {
     return {
@@ -82,160 +120,40 @@ export default {
       url: import.meta.env.VITE_GRAPHQL_URL,
       token: localStorage.getItem("token"),
 
+      showModal: false,
+      modalImage: null,
+
       activeTabClass: "bg-orange-500 text-white font-semibold",
       inactiveTabClass: "bg-gray-200 text-gray-800",
     };
   },
 
   mounted() {
-    this.testB2BCreateOrder(500);
-    this.createC2BOrder(500);
-    this.fetchSlipSchema();
-    this.fetchSlipDeposits();
-    this.fetchTelebirrDeposits();
+    this.fetchSlipDeposits();      // REST
+    this.fetchTelebirrDeposits();  // GRAPHQL
   },
 
   methods: {
-
-    async testB2BCreateOrder(amount = 15) {
-  try {
-    // Make POST request to your B2BCreateOrder endpoint
-    const response = await axios.post(
-      `${import.meta.env.VITE_REST_URL}/create/order`,
-      {
-        title: "Test B2B Order",
-        amount: amount.toString(),
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${this.token}`, // Use your actual token
-          "x-app-key": import.meta.env.VITE_APP_KEY,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    // Log the full response for inspection
-    console.log("B2B Create Order Response:", response.data);
-
-    // Try to extract prepay_id safely
-    const prepayId = response.data?.biz_content?.prepay_id;
-    if (prepayId) {
-      console.log("Prepay ID:", prepayId);
-    } else {
-      console.warn("No prepay_id found in response.");
-    }
-  } catch (err) {
-    console.error("B2B Create Order Error:", err.response?.data || err.message);
-  }
-}
-,
-async createC2BOrder(amount) {
-  try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_REST_URL}/c2b/create/order`,
-      {
-        title: "Deposit to wallet",
-        amount: amount.toString(),
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-          "x-app-key": import.meta.env.VITE_APP_KEY,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("C2B Create Order Response:", response.data);
-
-    // Parse query string
-    const params = new URLSearchParams(response.data);
-    const prepayId = params.get("prepay_id");
-
-    console.log("prepayId:", prepayId);
-
-    if (!prepayId) throw new Error("prepay_id not found in response");
-
-    // Redirect to Telebirr checkout
-   // window.location.href = `https://app.telebirr.com/checkout/pay?prepay_id=${prepayId}`;
-  } catch (err) {
-    console.error("C2B order error:", err);
-    //alert("Failed to create C2B order.");
-  }
-}
-,
-    async fetchSlipSchema() {
-  try {
-    const introspectionQuery = gql`
-      query {
-        __type(name: "depositSlipHistory") {
-          name
-          fields {
-            name
-            type {
-              name
-              kind
-            }
-          }
-        }
-      }
-    `;
-
-    const res = await request(
-      this.url,
-      introspectionQuery,
-      {},
-      { Authorization: `Bearer ${this.token}` }
-    );
-
-    console.log("📌 DepositSlip Schema:", res.__type);
-  } catch (err) {
-    console.error("Schema fetch error:", err);
-  }
-}
-,
-    /* ------------------------- Slip Deposits ------------------------- */
+    /* ------------------------- SLIP via REST ------------------------- */
     async fetchSlipDeposits() {
       try {
-        const query = gql`
-          query($search: String, $first: Int, $page: Int, $ordered_by: [OrderByInput]!) {
-            depositSlips(
-              search: $search,
-              first: $first,
-              page: $page,
-              orderBy: $ordered_by
-            ) {
-              data {
-                id
-                imageUrl
-              
-              }
-            }
+        const res = await axios.get(
+          `${import.meta.env.VITE_REST_URL}/deposit-history`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
           }
-        `;
-
-        const variables = {
-          search: null,
-          first: 20,
-          page: 1,
-          ordered_by: [{ column: "CREATED_AT", order: "DESC" }],
-        };
-
-        const res = await request(
-          this.url,
-          query,
-          variables,
-          { Authorization: `Bearer ${this.token}` }
         );
 
-        this.slip = res.depositSlips.data;
+        // Backend structure: { data: [ ... ] }
+        this.slip = res.data.data || res.data;
       } catch (err) {
-        console.error("Slip deposit error:", err);
+        console.error("Slip REST error:", err.response?.data || err.message);
       }
     },
 
-    /* ---------------------- Telebirr Deposits ----------------------- */
+    /* ---------------------- TELEBIRR via GRAPHQL ---------------------- */
     async fetchTelebirrDeposits() {
       try {
         const query = gql`
@@ -261,17 +179,27 @@ async createC2BOrder(amount) {
           { Authorization: `Bearer ${this.token}` }
         );
 
-        // Filter only telebirr
         this.telebirr = res.myTransactions.data.filter(
           (t) => t.payment_method === "TELEBIRR"
         );
       } catch (err) {
-        console.error("Telebirr deposit error:", err);
+        console.error("Telebirr GraphQL error:", err);
       }
     },
 
+    /* ------------------------- MODAL ------------------------- */
+    openModal(url) {
+      this.modalImage = url;
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.modalImage = null;
+    },
+
+    /* ---------------------- Date Format ----------------------- */
     formatDate(date) {
-      if (!date) return "";
+      if (!date) return "—";
       return new Date(date).toLocaleString();
     },
   },
