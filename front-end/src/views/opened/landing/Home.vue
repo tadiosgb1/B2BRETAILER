@@ -7,44 +7,75 @@
     <Hero />
 
     <!-- Categories Section -->
-    <div class="relative p-4">
-      <div
-        class="flex items-center gap-2 overflow-x-auto scroll-smooth relative no-scrollbar whitespace-nowrap"
-        ref="categoriesContainer"
-        @scroll="updateCategoryScrollArrows"
-      >
-        <button
-          @click="goToShop(null)"
-          class="flex-shrink-0 ml-2  px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-        >
-          View All
-        </button>
-        <div
-          v-for="cat in categories"
-          :key="cat.id"
-          class="flex-shrink-0 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
-          @click="goToShop(cat.id)"
-        >
-          {{ cat.name }}
-        </div>
-      </div>
+<div class="relative px-6 py-6">
+  <!-- Title -->
+  <h2 class="text-lg font-semibold mb-4">View by Category</h2>
 
-      <!-- Category scroll arrows -->
-      <button
-        @click="scrollCategories(-150)"
-        :disabled="!canScrollPrevCategory"
-        class="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow z-10 disabled:opacity-50"
+  <!-- 2-Row Horizontal Scrolling Grid -->
+  <div
+    class="grid grid-rows-2 auto-cols-max gap-x-8 gap-y-6 overflow-x-auto scroll-smooth no-scrollbar"
+    style="grid-auto-flow: column;"
+    ref="categoriesContainer"
+    @scroll="updateCategoryScrollArrows"
+  >
+
+    <!-- View All -->
+    <div
+      class="flex flex-col items-center cursor-pointer"
+      @click="goToShop(null)"
+    >
+      <div
+        class="w-20 h-20 flex items-center justify-center rounded-full bg-orange-500 text-white font-semibold"
       >
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <button
-        @click="scrollCategories(150)"
-        :disabled="!canScrollNextCategory"
-        class="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow z-10 disabled:opacity-50"
-      >
-        <i class="fas fa-chevron-right"></i>
-      </button>
+        All
+      </div>
+      <p class="text-sm mt-2 text-center font-medium">View All</p>
     </div>
+
+    <!-- Category Items -->
+    <div
+      v-for="cat in categories"
+      :key="cat.id"
+      class="flex flex-col items-center cursor-pointer"
+      @click="goToShop(cat.id)"
+    >
+      <div
+        class="w-20 h-20 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center shadow"
+      >
+        <img
+          :src="proxiedImage(cat.imageUrl,'cat',cat.name)"
+          alt=""
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <p class="text-sm mt-2 font-medium text-center">{{ cat.name }}</p>
+    </div>
+
+  </div>
+
+  <!-- LEFT ARROW -->
+  <button
+    @click="scrollCategories(-300)"
+    :disabled="!canScrollPrevCategory"
+    class="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow z-20 disabled:opacity-40"
+  >
+    <i class="fas fa-chevron-left"></i>
+  </button>
+
+  <!-- RIGHT ARROW -->
+  <button
+    @click="scrollCategories(300)"
+    :disabled="!canScrollNextCategory"
+    class="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow z-20 disabled:opacity-40"
+  >
+    <i class="fas fa-chevron-right"></i>
+  </button>
+
+</div>
+
+
+
+
 
     <!-- Product Sections -->
     <div v-for="section in sections" :key="section.id" class="p-4">
@@ -88,7 +119,7 @@
           >
             <div class="relative w-full h-40 mb-2 group">
               <img
-                :src="proxiedImage(product.imageSrc)"
+                :src="proxiedImage(product.imageSrc,'product',product.name)"
                 :alt="product.name"
                 class="w-full h-full object-cover rounded"
               />
@@ -171,8 +202,12 @@ export default {
     window.removeEventListener("resize", this.updateCategoryScrollArrows);
   },
   methods: {
-         proxiedImage(url) {
-    if (!url) return '/placeholder.png';
+        proxiedImage(url,type,name) {
+          console.log("url,type,name",url,type,name);
+    // Return default placeholder if no URL provided
+    if (!url || url.trim() == '') {
+      return '../../../assets/img/product/icon.jpg';
+    }
 
     // Check Vite mode: 'development' or 'production'
     if (import.meta.env.MODE === 'production') {
@@ -226,7 +261,7 @@ export default {
     async fetchCategories() {
       try {
         const endpoint = import.meta.env.VITE_GRAPHQL_URL;
-        const query = gql`query { getTreeCategories { id name } }`;
+        const query = gql`query { getTreeCategories { id name  imageUrl } }`;
         const data = await request(endpoint, query);
         this.categories = data.getTreeCategories || [];
         this.$nextTick(() => this.updateCategoryScrollArrows());
