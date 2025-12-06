@@ -41,64 +41,70 @@ export default {
 
   methods: {
     async submitPasswordChange() {
-      this.errorMessage = "";
-      this.successMessage = "";
+  this.errorMessage = "";
+  this.successMessage = "";
 
-      if (this.form.new !== this.form.confirm) {
-        this.errorMessage = "New password and confirmation do not match.";
-        return;
-      }
+  if (this.form.new !== this.form.confirm) {
+    this.errorMessage = "New password and confirmation do not match.";
+    return;
+  }
 
-      const mutation = gql`
-        mutation(
-          $current_password: String!,
-          $password: String!,
-          $password_confirmation: String!
-        ) {
-          updatePassword(
-            input: {
-              current_password: $current_password,
-              password: $password,
-              password_confirmation: $password_confirmation
-            }
-          ) {
-            status
-          }
+  const mutation = gql`
+    mutation(
+      $current_password: String!,
+      $password: String!,
+      $password_confirmation: String!
+    ) {
+      updatePassword(
+        input: {
+          current_password: $current_password,
+          password: $password,
+          password_confirmation: $password_confirmation
         }
-      `;
-
-      const variables = {
-        current_password: this.form.current,
-        password: this.form.new,
-        password_confirmation: this.form.confirm,
-      };
-
-      try {
-        const token = localStorage.getItem("token");
-
-        const res = await request(
-          import.meta.env.VITE_GRAPHQL_URL,
-          mutation,
-          variables,
-          { Authorization: `Bearer ${token}` }
-        );
-
-        if(res){
-          this.$root.$refs.toast.showToast('Password changed successfully', 'success');
-        }
-        if (res.updatePassword.status === "SUCCESS") {
-          this.successMessage = "Password updated successfully!";
-          this.form.current = "";
-          this.form.new = "";
-          this.form.confirm = "";
-        } else {
-          this.errorMessage = "Password update failed.";
-        }
-      } catch (err) {
-        this.errorMessage = err.response?.errors?.[0]?.message || "Error updating password.";
-        this.$root.$refs.toast.showToast('password change failed', 'error');
+      ) {
+        status
       }
     }
+  `;
+
+  const variables = {
+    current_password: this.form.current,
+    password: this.form.new,
+    password_confirmation: this.form.confirm,
+  };
+
+  try {
+    const token = localStorage.getItem("token");   // ← token retrieved here
+
+    const res = await request(
+      import.meta.env.VITE_GRAPHQL_URL,
+      mutation,
+      variables,
+      {
+        Authorization: `Bearer ${token}`  // ← token included in headers
+      }
+    );
+
+    if (res) {
+      this.$root.$refs.toast.showToast("Password changed successfully", "success");
+    }
+
+    if (res.updatePassword.status === "SUCCESS") {
+      this.successMessage = "Password updated successfully!";
+      this.form.current = "";
+      this.form.new = "";
+      this.form.confirm = "";
+    } else {
+      this.errorMessage = "Password update failed.";
+    }
+
+  } catch (err) {
+    this.errorMessage =
+      err.response?.errors?.[0]?.message || "Error updating password.";
+    this.$root.$refs.toast.showToast("Password change failed", "error");
+  }
+}
+
   }
 };
 </script>
