@@ -541,7 +541,6 @@ export default {
           reviews {
             id
             review
-           
           }
           minimum_order_quantity
           discount { id discount_value discount_value_type end_date }

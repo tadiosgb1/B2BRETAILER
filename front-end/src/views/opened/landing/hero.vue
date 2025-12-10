@@ -1,7 +1,7 @@
 <template>
   <section
-    class="relative overflow-hidden py-12 bg-cover bg-center bg-no-repeat mt-1"
-    :style="{ backgroundImage: `url(${heroBg})` }"
+    class="relative overflow-hidden py-12 bg-cover bg-center bg-no-repeat mt-1 transition-all duration-700"
+    :style="{ backgroundImage: `url(${currentBg})` }"
   >
     <!-- Orange overlay -->
     <div class="absolute inset-0 bg-orange-900/80 lg:bg-orange-900/60"></div>
@@ -18,11 +18,9 @@
       <h1
         class="text-3xl sm:text-4xl lg:text-5xl font-extrabold uppercase opacity-0 animate-fadeIn delay-500"
       >
-        <!-- Static dense orange text -->
         <span class="block lg:inline mr-0 lg:mr-4 text-white font-extrabold">Connect.</span>
         <span class="block lg:inline mr-0 lg:mr-4 text-orange-500 font-extrabold">Trade</span>
-        <!-- Animated gradient text -->
-         <span class="block lg:inline text-white">.Grow</span>
+        <span class="block lg:inline text-white">.Grow</span>
         <span class="block lg:inline animate-gradientText"> Your Business</span>
       </h1>
     </div>
@@ -30,12 +28,39 @@
 </template>
 
 <script>
-import heroBg from "../../../assets/img/hero/bgg.jpg";
+import bgg from "../../../assets/img/hero/bgg.jpg";
+import bgg1 from "../../../assets/img/hero/bgg1.jpg";
+import bgg2 from "../../../assets/img/hero/bgg2.jpg";
+import bgg3 from "../../../assets/img/hero/bgg3.jpg";
 
 export default {
   name: "B2BHero",
+
   data() {
-    return { heroBg };
+    return {
+      images: [bgg, bgg1, bgg2,bgg3],
+      currentIndex: 0,
+      a: true, // Keep your existing condition
+    };
+  },
+
+  computed: {
+    currentBg() {
+      return this.images[this.currentIndex];
+    },
+  },
+
+  mounted() {
+    this.startCarousel();
+  },
+
+  methods: {
+    startCarousel() {
+      setInterval(() => {
+        this.currentIndex =
+          (this.currentIndex + 1) % this.images.length;
+      }, 5000); // ⏱ Change image every 5 seconds
+    },
   },
 };
 </script>

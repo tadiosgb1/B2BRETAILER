@@ -162,7 +162,7 @@ export default {
 
         this.$router.push("/");
       } catch (err) {
-        this.error = err.message || "Login failed";
+        this.error = "Login failed";
         this.$root.$refs.toast.showToast(this.error.message || "login failed", 'error');
       } finally {
         this.loading = false;

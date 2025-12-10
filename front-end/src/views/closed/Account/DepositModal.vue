@@ -55,7 +55,7 @@
 
 <script>
 import { request, gql } from "graphql-request";
-
+import axios from 'axios'
 export default {
   name: "DepositModal",
   data() {
@@ -106,29 +106,52 @@ export default {
       this.$emit("close");
     },
 
- async submitTelebirrDeposit() {
+async submitTelebirrDeposit() {
   if (!this.telebirrAmount) return alert("Amount is required");
 
-  const token = localStorage.getItem("token"); // always use token
+  const token = localStorage.getItem("token");
 
-  const query = gql`
-    mutation($amount: Float!, $type: String!) {
-      depositToWallet(input: { amount: $amount, type: $type }) {
-        txn_ref
+  try {
+    const response = await axios.post(
+      "/telebirr/c2b/start/pay", // <-- PROXY FIX (NO CORS)
+      { amount: this.telebirrAmount },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
-    }
-  `;
+    );
 
-  await request(
-    import.meta.env.VITE_GRAPHQL_URL,
-    query,
-    { amount: this.telebirrAmount, type: "INDIVIDUAL" },
-    { Authorization: `Bearer ${token}` }
-  );
+    console.log("Telebirr response:", response.data);
 
-  alert("Telebirr deposit submitted!");
-  this.$emit("close");
-},
+    // if (!response.data.returnData) {
+    //   alert("❌ Telebirr payment error: missing returnData");
+    //   return;
+    // }
+
+    // Build Telebirr redirect URL
+    const telebirrUrl =
+      "https://superapp.ethiomobilemoney.et:38443/payment/web/h5/paygate?" +
+      "12345";
+
+    // Redirect to Telebirr checkout
+    window.location.href = telebirrUrl;
+
+  } catch (error) {
+        const telebirrUrl =
+      "https://superapp.ethiomobilemoney.et:38443/payment/web/h5/paygate?" +
+      "12345";
+
+    // Redirect to Telebirr checkout
+    window.location.href = telebirrUrl;
+
+    console.error("Telebirr error:", error);
+    alert("Something went wrong while creating Telebirr order");
+  }
+}
+
+
 
   },
 };

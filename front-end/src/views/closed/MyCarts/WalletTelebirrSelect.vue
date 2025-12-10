@@ -48,7 +48,7 @@
 
 <script>
 import { request, gql } from "graphql-request";
-
+import axios from 'axios'
 export default {
   name: "WalletTelebirrSelect",
   props: {
@@ -63,54 +63,57 @@ export default {
     };
   },
   methods: {
-    async checkoutOrder() {
-      const mutation = gql`
-        mutation($payment_method: String!, $type: String, $items: [CartInput!]!) {
-          checkoutOrder(input: { payment_method: $payment_method, type: $type, items: $items }) {
-            link {
-              result
-              code
-              msg
-              nonce_str
-              sign
-              sign_type
-              biz_content {
-                merch_order_id
-                prepay_id
-                receiveCode
-              }
-            }
-            orders {
-              id
-            }
-          }
-        }
-      `;
+async checkoutOrder() {
+  const url = `${import.meta.env.VITE_REST_URL}/c2b/create/order`;
 
-      const variables = {
-        payment_method: this.selectedPayment,
-        type: "INDIVIDUAL",
-        items: [
-          {
-            delivery_option: this.checkoutData.deliveryOption.toUpperCase(),
-            vehicle_type_id: this.checkoutData.vehicleTypeId,
-            warehouse_id: this.checkoutData.warehouseId,
-            cart_ids: this.checkoutData.cartIds,
-          },
-        ],
-      };
+  try {
+    // Step 1: call backend with single-item payload (not array)
+    const payload = {
+      payment_method: this.selectedPayment,
+      type: "INDIVIDUAL",
+      title: "iphone1",      // e.g., "iphone1"
+      amount: 1500,    // e.g., "15"
+      delivery_option: this.checkoutData.deliveryOption.toUpperCase(),
+      vehicle_type_id: this.checkoutData.vehicleTypeId,
+      warehouse_id: this.checkoutData.warehouseId,
+      cart_ids: this.checkoutData.cartIds,
+    };
 
-      try {
-        const headers = { Authorization: `Bearer ${this.token}` };
-        const data = await request(this.endpoint, mutation, variables, headers);
-        console.log("Checkout response", data);
-        this.showModal("Success", "Checkout successful!", true);
-      } catch (err) {
-        console.error(err);
-        const msg = err.response?.errors?.[0]?.message || "Checkout failed.";
-        this.showModal("Error", msg, false);
-      }
-    },
+    const response = await axios.post(url, payload, {
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("response",response);
+
+    const data = response.data;
+    console.log("Order created:", data);
+
+    // Step 2: build H5 payment URL
+    const params = new URLSearchParams({
+      title: data.title || payload.title,
+      amount: data.amount || payload.amount,
+      order_id: data.order_id || "",        // if backend returns order_id
+      // add other required fields here
+    });
+
+    const paygateUrl = `https://superapp.ethiomobilemoney.et:38443/payment/web/h5/paygate?${params.toString()}`;
+
+    // Step 3: redirect user to H5 payment page
+    window.location.href = paygateUrl;
+
+  } catch (err) {
+    console.error(err);
+    const msg =
+      err.response?.data?.message ||
+      err.response?.data?.errors?.[0]?.message ||
+      "Checkout failed.";
+    this.showModal("Error", msg, false);
+  }
+}
+,
     showModal(title, message, success) {
       this.modal = { show: true, title, message, success };
     },

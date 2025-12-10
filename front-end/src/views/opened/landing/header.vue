@@ -94,13 +94,13 @@
       :key="sub.id"
       class="flex flex-col items-center cursor-pointer group"
     >
-      <div @click="goToShop(sub.id)"
+      <div @click="goToShop(sub.parent_id)"
         class="w-full h-24 sm:h-28 md:h-32 overflow-hidden rounded-md border border-gray-100 flex items-center justify-center bg-gray-50"
       >
         <!-- If image exists, show it. If not, show fallback icon -->
         <img
           v-if="sub.imageUrl"
-          :src="sub.imageUrl"
+          :src="proxiedImage(sub.imageUrl)"
           :alt="sub.name"
           class="w-full h-full object-cover rounded-md transition-transform duration-200 group-hover:scale-105"
         />
@@ -123,7 +123,7 @@
         </nav>
 
         <!-- Search Component -->
-        <div class="relative w-full md:w-80 lg:w-[450px] xl:w-[550px] ml-auto">
+        <!-- <div class="relative w-full md:w-80 lg:w-[450px] xl:w-[550px] ml-auto">
           <input
             type="text"
             v-model="searchQuery"
@@ -137,7 +137,9 @@
           >
             <i class="fas fa-search"></i>
           </button>
-        </div>
+        </div> -->
+
+       <SearchComponent />
       </div>
 
       <!-- Menu Links -->
@@ -184,8 +186,13 @@
 <script>
 import { request, gql } from "graphql-request";
 
+import SearchComponent from './searchComponent.vue';
+
 export default {
   name: "Header",
+  components:{
+     SearchComponent
+  },
   data() {
     return {
       showMegaMenu: false,
@@ -214,6 +221,22 @@ export default {
   },
 
   methods: {
+         proxiedImage(url) {
+          
+    // Return default placeholder if no URL provided
+    if (!url || url.trim() == '') {
+      return '../../../assets/img/product/icon.jpg';
+    }
+
+    // Check Vite mode: 'development' or 'production'
+    if (import.meta.env.MODE === 'production') {
+      // In production, remove backend domain so HTTPS frontend works
+      return url.replace(/^http:\/\/78\.47\.138\.239:8080/, '');
+    } else {
+      // In development, use full URL (local dev backend)
+      return url;
+    }
+  },
      goToShop(category_id){
       this.$router.push({ name: "Shop", query: { category_id:category_id } });
     },
@@ -237,38 +260,46 @@ export default {
         console.error(e);
       }
     },
-async fetchSubCategories(id) {
-  console.log("id",id);
-  this.loading = true;
-  this.subCategories = [];
 
-  try {
-    // Recursive search inside the tree
-    const findNode = (list, targetId) => {
-      for (const node of list) {
-        if (node.id === targetId) return node;
-        if (node.children?.length) {
-          const found = findNode(node.children, targetId);
-          if (found) return found;
+
+
+ async fetchSubCategories(id) {
+    console.log("id", id);
+    this.loading = true;
+    this.subCategories = [];
+
+    try {
+      // Recursive search inside the tree
+      const findNode = (list, targetId) => {
+        for (const node of list) {
+          if (node.id === targetId) return node;
+          if (node.children?.length) {
+            const found = findNode(node.children, targetId);
+            if (found) return found;
+          }
         }
-      }
-      return null;
-    };
+        return null;
+      };
 
-    const category = findNode(this.categories, id);
-    console.log("category",category);
+      const category = findNode(this.categories, id);
+      console.log("category", category);
 
-    this.subCategories = category?.children || [];
-    console.log("subcategores",this.subCategories);
+      // Map over children to include parent_id
+      this.subCategories = (category?.children || []).map(sub => ({
+        ...sub,
+        parent_id: category.id
+      }));
 
-  } catch (e) {
-    console.error("SUB CATEGORY ERROR:", e);
-  }
+      console.log("subCategories with parent_id", this.subCategories);
 
-  this.loading = false;
-}
+    } catch (e) {
+      console.error("SUB CATEGORY ERROR:", e);
+    }
 
-,
+    this.loading = false;
+  },
+  
+
 
     async fetchCarts() {
       try {
