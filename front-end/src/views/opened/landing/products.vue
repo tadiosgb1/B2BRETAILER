@@ -409,6 +409,8 @@ export default defineComponent({
       allCliked:false,
       sortOption:'new',
       min_order:"",
+      color:"",
+      gender:"any"
     };
   },
 

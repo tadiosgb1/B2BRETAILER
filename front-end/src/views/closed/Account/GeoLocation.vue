@@ -67,17 +67,24 @@
   </div>
 </template>
 
-
 <script>
-import axios from "axios";
 import { request, gql } from "graphql-request";
 
 export default {
   name: "GeoLocation",
   data() {
     return {
-      form: null,
-      geoId: null,
+      form: {
+        name: "",
+        region: "",
+        region_id: "",
+        city: "",
+        address: "",
+        contact_name: "",
+        contact_email: "",
+        contact_phone: "",
+        location: ""
+      },
     };
   },
 
@@ -86,92 +93,137 @@ export default {
   },
 
   methods: {
-    async fetchGeoData() {
-      try {
-        const token = localStorage.getItem("token");
-        const endpoint = `${import.meta.env.VITE_REST_URL}/profile`;
+    // ---------------------------------------------------------
+    // FETCH RETAILER INFO (IF EXISTS)
+    // ---------------------------------------------------------
+   async fetchGeoData() {
+  try {
+    const token = localStorage.getItem("token");
+    const graphqlURL = import.meta.env.VITE_GRAPHQL_URL;
 
-        const res = await axios.get(endpoint, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        console.log("profile response:", res);
-
-        this.geoId = res.data.id;
-
-        const lat = res.data._geo?.lat || "";
-        const lng = res.data._geo?.lng || "";
-
-        this.form = {
-          name: res.data.name || "",
-          region: res.data.region?.name || "",
-          city: res.data.city || "",
-          address: res.data.address || "",
-          contact_phone: res.data.contact_phone || "",
-          contact_email: res.data.contact_email || "",
-          location: lat && lng ? `${lat},${lng}` : ""
-        };
-      } catch (err) {
-        console.error(err);
-        alert("Failed to load geo location.");
+    const query = gql`
+      query {
+        auth {
+          id
+          name
+          phone
+          email
+          retailer {
+            id
+            name
+            address
+            city
+            contact_name
+            contact_phone
+            contact_email
+            region { id name }
+            _geo { lat lng }
+          }
+        }
       }
-    },
+    `;
 
+    const res = await request(graphqlURL, query, {}, {
+      Authorization: `Bearer ${token}`
+    });
+
+    const auth = res.auth;
+    const retailer = auth.retailer;
+
+    // -------------------------------
+    // CASE 1: RETAILER EXISTS
+    // -------------------------------
+    if (retailer) {
+      const lat = retailer._geo?.lat ?? "";
+      const lng = retailer._geo?.lng ?? "";
+
+      this.form = {
+        name: retailer.name ?? auth.name,  // fallback
+        region: retailer.region?.name ?? "",
+        region_id: retailer.region?.id ?? "",
+        city: retailer.city ?? "",
+        address: retailer.address ?? "",
+        contact_name: retailer.contact_name ?? retailer.name ?? auth.name,
+        contact_phone: retailer.contact_phone ?? auth.phone,
+        contact_email: retailer.contact_email ?? auth.email,
+        location: lat && lng ? `${lat},${lng}` : ""
+      };
+    }
+
+    // -------------------------------
+    // CASE 2: RETAILER IS NULL
+    // → Use auth fields
+    // -------------------------------
+    else {
+      this.form = {
+        name: auth.name,
+        region: "",
+        region_id: "",
+        city: "",
+        address: "",
+        contact_name: auth.name,
+        contact_phone: auth.phone,
+        contact_email: auth.email,
+        location: ""
+      };
+    }
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+,
+
+    // ---------------------------------------------------------
+    // GET BROWSER GPS LOCATION
+    // ---------------------------------------------------------
     getLocation() {
-      if (!navigator.geolocation) {
-        alert("Geolocation is not supported.");
-        return;
-      }
-
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = Number(pos.coords.latitude.toFixed(6));
-          const lng = Number(pos.coords.longitude.toFixed(6));
-
-          // template expects STRING
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
           this.form.location = `${lat},${lng}`;
         },
-        () => alert("Failed to get location — please allow permission.")
+        () => alert("Location access denied.")
       );
     },
 
+    // ---------------------------------------------------------
+    // SUBMIT selfUpdateRetailer
+    // ---------------------------------------------------------
     async submitUpdate() {
-      if (!this.geoId) return;
-
       try {
         const token = localStorage.getItem("token");
+        const graphqlURL = import.meta.env.VITE_GRAPHQL_URL;
 
-        // convert "lat,lng" string → { lat, lng }
+        // Convert "12.345,45.678" into object
         let geo = null;
         if (this.form.location.includes(",")) {
           const [lat, lng] = this.form.location.split(",");
-          geo = {
-            lat: Number(lat),
-            lng: Number(lng),
-          };
+          geo = { lat: Number(lat), lng: Number(lng) };
         }
 
         const mutation = gql`
           mutation(
-            $id: ID!
             $name: String!
             $address: String!
-            $_geo: GeoInput
             $city: String
+            $_geo: GeoInput
             $contact_name: String!
+            $contact_email: String
             $contact_phone: String!
+            $region_id: String!
           ) {
-            updateRetailer(
-              id: $id
-              input: {
-                name: $name
-                address: $address
-                _geo: $_geo
-                city: $city
-                contact_name: $contact_name
-                contact_phone: $contact_phone
-              }
-            ) {
+            selfUpdateRetailer(input: {
+              name: $name
+              address: $address
+              city: $city
+              _geo: $_geo
+              contact_name: $contact_name
+              contact_email: $contact_email
+              contact_phone: $contact_phone
+              region_id: $region_id
+            }) {
               id
               name
             }
@@ -179,31 +231,31 @@ export default {
         `;
 
         const variables = {
-          id: this.geoId,
           name: this.form.name,
           address: this.form.address,
-          _geo: geo,
           city: this.form.city,
-          contact_name: this.form.contact_name ?? this.form.contact_phone, // adjust as needed
+          _geo: geo,
+          contact_name: this.form.contact_name,
+          contact_email: this.form.contact_email,
           contact_phone: this.form.contact_phone,
+          region_id: "2",
         };
 
-        const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_URL;
-
-        await request(graphqlEndpoint, mutation, variables, {
-          Authorization: `Bearer ${token}`,
+        await request(graphqlURL, mutation, variables, {
+          Authorization: `Bearer ${token}`
         });
 
-      //  alert("Geo location updated successfully!");
+        this.$root.$refs.toast.showToast("Geolocation updated successfully", "success");
 
-        this.$root.$refs.toast.showToast('Geolocation edited successfully', 'success');
-        
       } catch (err) {
         console.error(err);
-        this.$root.$refs.toast.showToast( 'Geolocation edit failed', 'error');
+        this.$root.$refs.toast.showToast("Update failed", "error");
       }
     },
   },
 };
 </script>
+
+
+
 

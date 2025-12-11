@@ -161,6 +161,7 @@ export default {
       loading: true,
       modal: { show: false, title: "", message: "" },
       vehicleTypes: [],
+      payment_methods:[],
     };
   },
   methods: {
@@ -176,6 +177,45 @@ export default {
       return url;
     }
   },
+async fetchPaymentMethods() {
+  try {
+    const token = localStorage.getItem("token");
+    const endpoint = import.meta.env.VITE_GRAPHQL_URL;
+
+    const query = gql`
+      query ($first: Int!, $page: Int) {
+        paymentTypes(first: $first, page: $page) {
+          data {
+            id
+            name
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      first: 50,   // you can change this
+      page: 1      // default page
+    };
+
+    const res = await request(endpoint, query, variables, {
+      Authorization: `Bearer ${token}`,
+    });
+
+
+    console.log("res payment methods",res);
+
+    // Assign to component state
+    this.payment_methods = res.paymentTypes?.data || [];
+
+    console.log("Loaded payment methods:", this.payment_methods);
+
+  } catch (err) {
+    console.error("Failed to load payment methods:", err);
+  }
+}
+,
+
     async fetchCarts() {
       this.loading = true;
       try {
@@ -260,7 +300,9 @@ export default {
       this.$router.push({ name: "ProductDetail", params: { id: product.id } });
     },
   },
-  mounted() { this.fetchCarts(); },
+  mounted() { this.fetchCarts();
+    this.fetchPaymentMethods()
+   },
 };
 </script>
 
