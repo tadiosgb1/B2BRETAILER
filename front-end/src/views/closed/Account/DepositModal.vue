@@ -106,50 +106,58 @@ export default {
       this.$emit("close");
     },
 
-async submitTelebirrDeposit() {
+
+
+async  submitTelebirrDeposit() {
   if (!this.telebirrAmount) return alert("Amount is required");
 
   const token = localStorage.getItem("token");
+  const endpoint = import.meta.env.VITE_GRAPHQL_URL;
+
+  // Corrected mutation: only query 'url'
+  const mutation = gql`
+    mutation ($amount: Float!, $type: String!) {
+      webDepositToWallet(input: {
+        amount: $amount,
+        type: $type
+      }) {
+        url
+        txn_ref
+      }
+    }
+  `;
+
+  const variables = {
+    amount: parseFloat(this.telebirrAmount),
+    type: "INDIVIDUAL",
+  };
+
+  console.log("variables", variables);
 
   try {
-    const response = await axios.post(
-      "/telebirr/c2b/start/pay", // <-- PROXY FIX (NO CORS)
-      { amount: this.telebirrAmount },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const data = await request(endpoint, mutation, variables, {
+      Authorization: `Bearer ${token}`,
+    });
 
-    console.log("Telebirr response:", response.data);
+    console.log("data", data);
 
-    // if (!response.data.returnData) {
-    //   alert("❌ Telebirr payment error: missing returnData");
-    //   return;
-    // }
+    const depositData = data.webDepositToWallet;
 
-    // Build Telebirr redirect URL
-    const telebirrUrl =
-      "https://superapp.ethiomobilemoney.et:38443/payment/web/h5/paygate?" +
-      "12345";
+    if (!depositData || !depositData.url) {
+      alert("❌ Payment error: missing redirect URL");
+      return;
+    }
 
     // Redirect to Telebirr checkout
-    window.location.href = telebirrUrl;
+    window.location.href = depositData.url;
 
   } catch (error) {
-        const telebirrUrl =
-      "https://superapp.ethiomobilemoney.et:38443/payment/web/h5/paygate?" +
-      "12345";
-
-    // Redirect to Telebirr checkout
-    window.location.href = telebirrUrl;
-
-    console.error("Telebirr error:", error);
+    console.error("Telebirr GraphQL error:", error);
     alert("Something went wrong while creating Telebirr order");
   }
 }
+
+
 
 
 

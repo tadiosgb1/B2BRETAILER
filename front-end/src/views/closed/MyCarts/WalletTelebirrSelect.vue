@@ -25,7 +25,7 @@
         <button @click="$emit('close')" class="px-4 py-2 border rounded">Cancel</button>
 
         <button
-          @click="preCheckoutAndProceed"
+          @click="webCheckoutOrder"
           class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
           :disabled="!selectedPayment"
         >
@@ -117,29 +117,15 @@ export default {
   /* -------------------------------------------------------
  * PRE-CHECKOUT: Call GraphQL Mutation before actual checkout
  * -----------------------------------------------------*/
-async preCheckoutAndProceed() {
+async webCheckoutOrder() {
   try {
     const token = localStorage.getItem("token");
 
+    // Updated mutation to match backend schema
     const mutation = gql`
       mutation($payment_method: String!, $type: String, $items: [CartInput!]!) {
-        checkoutOrder(input: { payment_method: $payment_method, type: $type, items: $items }) {
-          link {
-            result
-            code 
-            msg
-            nonce_str
-            sign 
-            sign_type
-            biz_content {
-              merch_order_id
-              prepay_id
-              receiveCode
-            }
-          }
-          orders {
-            id
-          }
+        webCheckoutOrder(input: { payment_method: $payment_method, type: $type, items: $items }) {
+          url
         }
       }
     `;
@@ -148,92 +134,38 @@ async preCheckoutAndProceed() {
     const items = [
       {
         delivery_option: this.checkoutData.deliveryOption?.toUpperCase() || "COMPANY_DELIVERY",
-        vehicle_type_id: this.checkoutData.vehicleTypeId || "24",
+        vehicle_type_id: this.checkoutData.vehicleTypeId,
         warehouse_id: this.checkoutData.warehouseId || "92",
         cart_ids: this.checkoutData.cartIds || ["784"],
       }
     ];
 
     const variables = {
-      payment_method: this.selectedPayment.toUpperCase(),// e.g., "WALLET" or "TELEBIRR"
+      payment_method: this.selectedPayment.toUpperCase(), // e.g., "WALLET" or "TELEBIRR"
       type: "INDIVIDUAL",
       items,
     };
 
-    console.log("VARAIBLES",variables);
+    console.log("VARIABLES", variables);
 
     const res = await request(this.endpoint, mutation, variables, {
       Authorization: `Bearer ${token}`,
     });
 
+    console.log("Pre-checkout result:", res);
 
-    if(res && variables.payment_method=='TELEBIRR'){
-      await this.checkoutOrder();
+    // If TELEBIRR, open the checkout URL
+    if (res?.webCheckoutOrder?.url && variables.payment_method === "TELEBIRR") {
+      window.location.href = res.webCheckoutOrder.url;
     }
-    // console.log("Pre-checkout GraphQL result:", res);
 
-    // After mutation succeeds, proceed to existing checkout
-  //  await this.checkoutOrder();
   } catch (err) {
     console.error("Pre-checkout failed:", err);
     this.showModal("Error", "Pre-checkout failed. Please try again.", false);
   }
-},
+}
+,
 
-
-    /* -------------------------------------------------------
-     * CHECKOUT ORDER (Telebirr / Wallet) - Existing method
-     * -----------------------------------------------------*/
-    async checkoutOrder() {
-      const url = `${import.meta.env.VITE_REST_URL}/c2b/create/order`;
-      try {
-        const payload = {
-          // payment_method: this.selectedPayment,
-          // type: "INDIVIDUAL",
-          title: "iphone1",
-          amount: "15",
-          // delivery_option: this.checkoutData.deliveryOption.toUpperCase(),
-          // vehicle_type_id: this.checkoutData.vehicleTypeId,
-          // warehouse_id: this.checkoutData.warehouseId,
-          // cart_ids: this.checkoutData.cartIds,
-        };
-
-        const response = await axios.post(url, payload, {
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("Full response:", response);
-        console.log("Backend payload:", response.data);
-
-        const payQuery = response.data;
-
-        if (!payQuery || typeof payQuery !== "string") {
-          throw new Error("Payment query parameters not returned from backend.");
-        }
-
-        const paygateUrl =
-          `https://superapp.ethiomobilemoney.et:38443/payment/web/h5/paygate?${payQuery}` +
-          `&version=1.0&trade_type=Checkout&use_notice_key=false&language=en`;
-
-        console.log("Redirecting:", paygateUrl);
-
-        window.location.href = paygateUrl;
-      } catch (err) {
-        console.error(err);
-        const msg =
-          err.response?.data?.message ||
-          err.response?.data?.errors?.[0]?.message ||
-          "Checkout failed.";
-        this.showModal("Error", msg, false);
-      }
-    },
-
-    /* -------------------------------------------------------
-     * UPLOAD DEPOSIT SLIP (GraphQL Mutation)
-     * -----------------------------------------------------*/
     async submitDepositSlip(amount, reference_number, slipFile) {
       try {
         const token = localStorage.getItem("token");

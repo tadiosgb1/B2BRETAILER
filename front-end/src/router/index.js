@@ -6,6 +6,8 @@ import Home from '../views/opened/landing/Home.vue';
 import ProductDetail from "../views/opened/landing/ProductDetail.vue";
 import Orders from "../views/closed/orders/view.vue";
 import MyCarts from "../views/closed/MyCarts/view.vue";
+import Notify from "../views/closed/paymentSuccess/notify.vue";
+
 import Account from "../views/closed/Account/view.vue";
 import Login from '../views/opened/auth/login.vue';
 import Register from '../views/opened/auth/register.vue';
@@ -19,7 +21,6 @@ import AccessDenied from "../views/opened/auth/accessDenied.vue";
 import Dashboard from '../views/closed/dashboard.vue';
 import { showAuthModal } from "../components/AuthRequiredModal.vue";
 const routes = [
-  // Public routes
  
   { path: "/", name: "home", component: Home },
    { path: "/shop", name: "Shop", component: Shop },
@@ -36,6 +37,7 @@ const routes = [
 
   // Protected routes
   { path: "/orders", name: "orders-view", component: Orders, meta: { requiresAuth: true } },
+  { path: "/payment/notify", name: "payment-notify", component: Notify, meta: { requiresAuth: true } },
   { path: "/my-carts", name: "my-carts", component: MyCarts, meta: { requiresAuth: true } },
   { path: "/account", name: "account", component: Account, meta: { requiresAuth: true } },
 
