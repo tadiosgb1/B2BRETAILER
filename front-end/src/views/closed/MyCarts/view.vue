@@ -234,12 +234,14 @@ async fetchPaymentMethods() {
           }
         `;
         const cartData = await request(this.endpoint, cartQuery, {}, headers);
+     
         this.carts = cartData.myCarts.map((cart) => ({
           ...cart,
           deliveryType: "self_delivery",
           vehicleType: "",
           items: cart.items.map((i) => ({ ...i, selected: false })),
         }));
+
 
         // Fetch vehicle types
         const vehicleQuery = gql`

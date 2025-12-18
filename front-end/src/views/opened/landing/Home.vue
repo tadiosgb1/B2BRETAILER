@@ -7,7 +7,7 @@
     <Hero />
 
     <!-- Categories Section -->
-<div class="relative px-6 py-6">
+<div class="relative px-6 py-6 m-0 lg:m-32">
   <!-- Title -->
   <h2 class="text-lg font-semibold mb-4">View by Category</h2>
 
@@ -78,7 +78,7 @@
 
 
     <!-- Product Sections -->
-    <div v-for="section in sections" :key="section.id" class="p-4">
+    <div v-for="section in sections" :key="section.id" class="p-4 m-0 lg:m-32">
       <h2 class="text-2xl font-bold mb-4">{{ section.title }}</h2>
       <div class="relative">
         <!-- Left arrow -->
