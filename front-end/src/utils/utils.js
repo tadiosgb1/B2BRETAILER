@@ -10,6 +10,25 @@ export function reloadPage() {
   }, 2000);
 }
 
+export function proxiedImage(url) {
+  // Default placeholder
+  if (!url || url.trim() === '') {
+    return new URL(
+      '@/assets/img/product/icon.jpg',
+      import.meta.url
+    ).href;
+  }
+
+  // Production: strip backend domain
+  if (import.meta.env.MODE === 'production') {
+    return url.replace(/^http:\/\/78\.47\.138\.239:8080/, '');
+  }
+
+  // Development: return full URL
+  return url;
+}
+
+
 export function getApiClient() {
   const isProduction = import.meta.env.MODE === "production";
   const baseUrl = isProduction

@@ -48,7 +48,7 @@
       </div>
 
 <!-- All Filters Modal -->
-<dialog id="filtersModal" class="rounded-xl p-0 w-full max-w-3xl shadow-2xl">
+<dialog id="filtersModal" v-if="allFilters" class="rounded-xl p-0 w-full max-w-3xl shadow-2xl">
 
   <form method="dialog" class="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
 
@@ -167,7 +167,7 @@
       <h2 class="text-sm font-semibold">Filters</h2>
     </div>
 
-    <button onclick="document.getElementById('filtersModal').showModal()"
+    <button v-if="filterOtherAdded" onclick="document.getElementById('filtersModal').showModal()"
             class="text-sm text-orange-600 hover:underline font-medium ">
       All Filters
     </button>
@@ -228,7 +228,7 @@
       </div>
 
       <!-- Location Box -->
-      <div class="border border-gray-200 rounded-xl p-2 px-3 bg-white shadow-sm 
+      <div v-if="filterByLocation" class="border border-gray-200 rounded-xl p-2 px-3 bg-white shadow-sm 
                   flex flex-col h-20 min-w-[140px] sm:min-w-[150px] md:min-w-[160px]">
         <label class="text-[11px] font-semibold flex items-center gap-1 mb-1">
           <i class="fas fa-map-marker-alt text-orange-500 text-xs"></i> Location
@@ -242,7 +242,7 @@
       </div>
 
       <!-- Gender Box -->
-      <div class="border border-gray-200 rounded-xl p-2 px-3 bg-white shadow-sm 
+      <div v-if="filterByGender" class="border border-gray-200 rounded-xl p-2 px-3 bg-white shadow-sm 
                   flex flex-col h-20 min-w-[140px] sm:min-w-[150px] md:min-w-[160px]">
         <label class="text-[11px] font-semibold flex items-center gap-1 mb-1">
           <i class="fas fa-venus-mars text-orange-500 text-xs"></i> Gender
@@ -322,7 +322,7 @@
       @click="goToProductDetail(product)"
     >
       <div class="relative w-full h-32 bg-gray-100 rounded overflow-hidden">
-        <img :src="proxiedImage(product.imageSrc)" class="w-full h-full object-cover" :alt="product.name" />
+        <img :src="this.$proxiedImage(product.imageSrc)" class="w-full h-full object-cover" :alt="product.name" />
       </div>
 
       <h3 class="font-bold text-gray-900 mt-3 text-lg">{{ product.name }}</h3>

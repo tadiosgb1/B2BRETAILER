@@ -11,9 +11,10 @@ import Notify from "../views/closed/paymentSuccess/notify.vue";
 import Account from "../views/closed/Account/view.vue";
 import Login from '../views/opened/auth/login.vue';
 import Register from '../views/opened/auth/register.vue';
+import OtpVerification from "../views/opened/auth/sendOtp.vue";
+
 import ContactUs from '../views/opened/landing/contactUs.vue';
-import Services from '../views/opened/landing/services.vue';
-import About from '../views/opened/landing/about.vue';
+
 import ResetPassword from '../views/opened/auth/ResetPassword.vue';
 import ForgotPasssword from '../views/opened/auth/forgotPassword.vue';
 import Reset from '../views/opened/auth/reset.vue';
@@ -27,9 +28,20 @@ const routes = [
   { path: "/product/:id", name: "ProductDetail", component: ProductDetail, props: true },
   { path: "/login", name: "login", component: Login },
   { path: "/register", name: "register", component: Register },
+
+
+
+
+  {
+    path: "/otp-verification",
+    name: "OtpVerification",
+    component: OtpVerification,
+    props: route => ({ phone: route.query.phone }),
+  },
+  // other routes...
+
   { path: "/contact-us", name: "contact-us", component: ContactUs },
-  { path: "/about", name: "about", component: About },
-  { path: "/services", name: "services", component: Services },
+
   { path: "/forgot-password", name: "ForgotPassword", component: ForgotPasssword, props: true },
   { path: "/:lang/reset-password", name: "ResetPassword", component: ResetPassword, props: true },
   { path: "/reset/:token", name: "reset", component: Reset },
@@ -37,7 +49,7 @@ const routes = [
 
   // Protected routes
   { path: "/orders", name: "orders-view", component: Orders, meta: { requiresAuth: true } },
-  { path: "/payment/notify", name: "payment-notify", component: Notify, meta: { requiresAuth: true } },
+  { path: "/payment/result", name: "payment-result", component: Notify, meta: { requiresAuth: true } },
   { path: "/my-carts", name: "my-carts", component: MyCarts, meta: { requiresAuth: true } },
   { path: "/account", name: "account", component: Account, meta: { requiresAuth: true } },
 

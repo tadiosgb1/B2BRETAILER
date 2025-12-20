@@ -109,9 +109,12 @@ export default {
     }
   } catch (err) {
     console.error(err);
-    // graphql-request errors come as "response.errors"
-    //alert(err.response?.errors?.[0]?.message || err.message || "Failed to add to cart.");
-       this.$root.$refs.toast.showToast(err.message, 'error');
+    const message =
+    err?.response?.errors?.[0]?.message ||
+    err?.message ||
+    "Failed to add to cart.";
+
+  this.$root.$refs.toast.showToast(message, 'error');
   }
 }
   }

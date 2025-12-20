@@ -84,7 +84,7 @@
             >
               <img
                 v-if="item.product_sku.product.media.length"
-                :src="proxiedImage(item.product_sku.product.media[0].original_url)"
+                :src="this.$proxiedImage(item.product_sku.product.media[0].original_url)"
                 alt="Product"
                 class="w-24 h-24 object-cover rounded-lg shadow-sm"
               />

@@ -8,9 +8,7 @@
     <Hero  />
      <Products :category_id="category_id" />
     <!-- FAQs -->
-    <section class="bg-green-50 py-20" v-if="faksshow">
-      <Fqs />
-    </section>
+   
 
     <!-- FOOTER -->
     <Footer />
@@ -20,26 +18,15 @@
 <script>
 import Header from "./header.vue";
 import Footer from "./footer.vue";
-import Fqs from "./fqs.vue";
-import Pricing from "./pricing.vue";
 import Hero from "./hero.vue";
-import Testimonals from "./testimonals.vue";
-import Partners from "./partners.vue";
-import Overview from "./overview.vue";
-import ProductTour from "./productTour.vue";
 import Products from "./products.vue";
 // Simple reusable feature card component inside same file
 export default {
   components: {
     Header,
     Footer,
-    Fqs,
-    Pricing,
     Hero,
-    Testimonals,
-    Partners,
-    Overview,
-    ProductTour,
+  
     Products,
     FeatureCard: {
       props: ["title", "desc"],

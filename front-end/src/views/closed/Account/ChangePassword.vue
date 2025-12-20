@@ -1,10 +1,7 @@
 <template>
-  <div class="bg-white p-6 rounded shadow-md ">
+  <div class="bg-white p-6 rounded shadow-md mx-auto mt-8">
     <h2 class="text-lg font-semibold mb-4">Change Password</h2>
-    <form @submit.prevent="submitPasswordChange" class="lg:w-1/2">
-      <label class="block mb-2">Current Password</label>
-      <input v-model="form.current" type="password" class="w-full border rounded p-2 mb-4" required>
-
+    <form @submit.prevent="submitPasswordChange">
       <label class="block mb-2">New Password</label>
       <input v-model="form.new" type="password" class="w-full border rounded p-2 mb-4" required>
 
@@ -30,7 +27,6 @@ export default {
   data() {
     return {
       form: {
-        current: "",
         new: "",
         confirm: "",
       },
@@ -41,70 +37,63 @@ export default {
 
   methods: {
     async submitPasswordChange() {
-  this.errorMessage = "";
-  this.successMessage = "";
+      this.errorMessage = "";
+      this.successMessage = "";
 
-  if (this.form.new !== this.form.confirm) {
-    this.errorMessage = "New password and confirmation do not match.";
-    return;
-  }
+      // Frontend password confirmation check
+      if (this.form.new !== this.form.confirm) {
+        this.errorMessage = "New password and confirmation do not match.";
+        return;
+      }
 
-  const mutation = gql`
-    mutation(
-      $current_password: String!,
-      $password: String!,
-      $password_confirmation: String!
-    ) {
-      updatePassword(
-        input: {
-          current_password: $current_password,
-          password: $password,
-          password_confirmation: $password_confirmation
+      const mutation = gql`
+        mutation ResetPassword($newPassword: String!) {
+          reset_password_new(new_password: $newPassword) {
+            status
+            message
+            user {
+              id
+              name
+              email
+            }
+          }
         }
-      ) {
-        status
+      `;
+
+      const variables = {
+        newPassword: this.form.new,
+      };
+
+      try {
+        const token = localStorage.getItem("token"); // User must be authenticated
+
+        const res = await request(
+          import.meta.env.VITE_GRAPHQL_URL,
+          mutation,
+          variables,
+          {
+            Authorization: `Bearer ${token}`,
+          }
+        );
+
+        const result = res.reset_password_new;
+
+        if (result.status === "SUCCESS") {
+          this.successMessage = result.message || "Password updated successfully!";
+          this.form.new = "";
+          this.form.confirm = "";
+          this.$root.$refs.toast.showToast(this.successMessage, "success");
+        } else {
+          this.errorMessage = result.message || "Password update failed.";
+          this.$root.$refs.toast.showToast(this.errorMessage, "error");
+        }
+
+      } catch (err) {
+        this.errorMessage =
+          err.response?.errors?.[0]?.message || "Error updating password.";
+        this.$root.$refs.toast.showToast("Password change failed", "error");
       }
     }
-  `;
-
-  const variables = {
-    current_password: this.form.current,
-    password: this.form.new,
-    password_confirmation: this.form.confirm,
-  };
-
-  try {
-    const token = localStorage.getItem("token");   // ← token retrieved here
-
-    const res = await request(
-      import.meta.env.VITE_GRAPHQL_URL,
-      mutation,
-      variables,
-      {
-        Authorization: `Bearer ${token}`  // ← token included in headers
-      }
-    );
-
-    if (res) {
-      this.$root.$refs.toast.showToast("Password changed successfully", "success");
-    }
-
-    if (res.updatePassword.status === "SUCCESS") {
-      this.successMessage = "Password updated successfully!";
-      this.form.current = "";
-      this.form.new = "";
-      this.form.confirm = "";
-    } else {
-      this.errorMessage = "Password update failed.";
-    }
-
-  } catch (err) {
-    this.errorMessage =
-      err.response?.errors?.[0]?.message || "Error updating password.";
-    this.$root.$refs.toast.showToast("Password change failed", "error");
-  }
-}
-
   }
 };
 </script>

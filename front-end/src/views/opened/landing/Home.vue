@@ -43,7 +43,7 @@
         class="w-20 h-20 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center shadow"
       >
         <img
-          :src="proxiedImage(cat.imageUrl,'cat',cat.name)"
+          :src="this.$proxiedImage(cat.imageUrl,'cat',cat.name)"
           alt=""
           class="w-full h-full object-cover"
         />

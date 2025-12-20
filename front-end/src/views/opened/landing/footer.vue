@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
       <!-- BRAND INFO -->
       <div>
-        <h2 class="text-2xl font-bold text-orange-500">AntB2B.com</h2>
+        <h2 class="text-2xl font-bold text-orange-500">AntB2B</h2>
         <p class="mt-3 text-gray-600 leading-6">
           AntB2B is your trusted marketplace connecting global buyers and
           suppliers. Discover products, compare prices, and trade with

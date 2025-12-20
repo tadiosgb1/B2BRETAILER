@@ -160,46 +160,17 @@ async webCheckoutOrder() {
     }
 
   } catch (err) {
-    console.error("Pre-checkout failed:", err);
-    this.showModal("Error", "Pre-checkout failed. Please try again.", false);
+     console.error(err);
+    const message =
+    err?.response?.errors?.[0]?.message ||
+    err?.message ||
+    "Failed to add to cart.";
+
+  this.$root.$refs.toast.showToast(message, 'error');
   }
 }
 ,
 
-    async submitDepositSlip(amount, reference_number, slipFile) {
-      try {
-        const token = localStorage.getItem("token");
-
-        const mutation = gql`
-          mutation ($amount: Float!, $reference_number: String!, $slip: Upload!) {
-            createDepositSlip(
-              input: {
-                amount: $amount
-                reference_number: $reference_number
-                slip: $slip
-              }
-            ) {
-              id
-            }
-          }
-        `;
-
-        const variables = { amount, reference_number, slip: slipFile };
-
-        const result = await request(
-          this.endpoint,
-          mutation,
-          variables,
-          { Authorization: `Bearer ${token}` }
-        );
-
-        console.log("Deposit slip uploaded:", result);
-        return result;
-      } catch (err) {
-        console.error("Deposit slip upload failed:", err);
-        throw err;
-      }
-    },
 
     showModal(title, message, success) {
       this.modal = { show: true, title, message, success };

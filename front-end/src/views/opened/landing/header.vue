@@ -106,12 +106,12 @@
                           <!-- If image exists, show it. If not, show fallback icon -->
                           <img
                             v-if="sub.imageUrl"
-                            :src="proxiedImage(sub.imageUrl)"
+                            :src="this.$proxiedImage(sub.imageUrl)"
                             :alt="sub.name"
                             class="w-full h-full object-cover rounded-md transition-transform duration-200 group-hover:scale-105"
                           />
                           <img v-else
-                              src="../../../assets/img/logo.png"
+                              src="../../../assets/img/product/icon.jpg"
                               class="w-10 h-10 object-cover cursor-pointer"
                               alt="Ant Retailer Logo"
                             />

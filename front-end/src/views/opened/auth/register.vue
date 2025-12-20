@@ -5,22 +5,27 @@
 
     <!-- BACKGROUND -->
     <div
-      class="flex-1 flex items-center justify-center bg-cover bg-center relative"
+      class="flex-1 flex items-center justify-center bg-cover bg-center relative p-4 md:p-0"
       :style="{ backgroundImage: `url(${registerBg})` }"
     >
       <div class="absolute inset-0 bg-black/40"></div>
 
       <!-- REGISTER CARD -->
       <div
-        class="my-16 mb-5 relative z-10 w-full max-w-md mx-auto p-8 bg-white/90 backdrop-blur-md rounded-2xl border border-white/40 animate-fadeInUp"
+        class="my-16 relative z-10 w-full max-w-3xl mx-auto p-8 bg-white/90 backdrop-blur-md rounded-2xl border border-white/40 animate-fadeInUp shadow-lg"
       >
         <Toast ref="toast" />
 
-        <h2 class="text-3xl font-bold text-center mb-6 text-orange-700 drop-shadow-md">
+        <h2 class="text-3xl font-bold text-center mb-8 text-orange-700 drop-shadow-md">
           Create Retailer Account
         </h2>
 
-        <form @submit.prevent="registerUser" class="space-y-6">
+        <form
+          @submit.prevent="registerUser"
+          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+          enctype="multipart/form-data"
+        >
+          <!-- Full Name -->
           <div>
             <label class="block text-gray-700 font-semibold mb-1">Full Name</label>
             <input
@@ -30,6 +35,7 @@
             />
           </div>
 
+          <!-- Phone -->
           <div>
             <label class="block text-gray-700 font-semibold mb-1">Phone Number</label>
             <input
@@ -39,16 +45,33 @@
             />
           </div>
 
+          <!-- Email -->
           <div>
             <label class="block text-gray-700 font-semibold mb-1">Email Address</label>
             <input
               type="email"
               v-model="form.email"
-              required
               class="text-black w-full px-4 py-3 border rounded-md shadow-sm focus:ring-2 focus:ring-orange-500"
             />
           </div>
 
+          <!-- Role -->
+         
+
+
+          <!-- Profile Image -->
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 font-semibold mb-1">Profile Image</label>
+            <input
+              type="file"
+              @change="handleFileUpload"
+              accept="image/*"
+              class="w-full"
+            />
+          </div>
+
+          
+          <!-- Password -->
           <div>
             <label class="block text-gray-700 font-semibold mb-1">Password</label>
             <input
@@ -59,6 +82,7 @@
             />
           </div>
 
+          <!-- Confirm Password -->
           <div>
             <label class="block text-gray-700 font-semibold mb-1">Confirm Password</label>
             <input
@@ -69,13 +93,15 @@
             />
           </div>
 
-          <p v-if="error" class="text-red-600 text-sm font-semibold">
+          <!-- Error message -->
+          <p class="text-red-600 text-sm font-semibold md:col-span-2" v-if="error">
             {{ error }}
           </p>
 
+          <!-- Submit button -->
           <button
             type="submit"
-            class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-md shadow-lg transition"
+            class="w-full md:col-span-2 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-md shadow-lg transition"
             :disabled="loading"
           >
             <span v-if="!loading">Register</span>
@@ -84,7 +110,7 @@
         </form>
 
         <!-- LOGIN LINK -->
-        <p class="text-center mt-4 text-sm">
+        <p class="text-center mt-6 text-sm">
           Already have an account?
           <router-link to="/login" class="text-orange-600 font-semibold hover:underline">
             Login here
@@ -103,8 +129,6 @@ import Footer from "../landing/footer.vue";
 import Toast from "../../../components/Toast.vue";
 import registerBg from "../../../assets/img/hero/bgg.jpg";
 
-import { request, gql } from "graphql-request";
-
 export default {
   name: "RegisterPage",
   components: { Header, Footer, Toast },
@@ -117,6 +141,8 @@ export default {
         email: "",
         password: "",
         password_confirmation: "",
+        profile_image: null,
+        role: "retailer",
       },
       error: "",
       loading: false,
@@ -125,56 +151,97 @@ export default {
   },
 
   methods: {
+    handleFileUpload(event) {
+      this.form.profile_image = event.target.files[0];
+    },
+
     async registerUser() {
       this.error = "";
       this.loading = true;
 
       const endpoint = import.meta.env.VITE_GRAPHQL_URL;
-
-      const mutation = gql`
-        mutation(
+      const mutation = `
+        mutation CreateNew(
           $name: String!
           $phone: String!
-          $email: String!
+          $email: String
           $password: String!
           $password_confirmation: String!
+          $profile_image: Upload
+          $role: String!
         ) {
-          register(
-            input: {
-              name: $name
-              phone: $phone
-              email: $email
-              password: $password
-              password_confirmation: $password_confirmation
-            }
+          createNew(
+            name: $name
+            phone: $phone
+            email: $email
+            password: $password
+            password_confirmation: $password_confirmation
+            profile_image: $profile_image
+            role: $role
           ) {
-            token
+            id
+            name
+            phone
             status
+            role
+            profile_image
           }
         }
       `;
 
       try {
-        const res = await request(endpoint, mutation, {
-          ...this.form,
+        const formData = new FormData();
+
+        formData.append(
+          "operations",
+          JSON.stringify({
+            query: mutation,
+            variables: {
+              name: this.form.name,
+              phone: this.form.phone,
+              email: this.form.email,
+              password: this.form.password,
+              password_confirmation: this.form.password_confirmation,
+              profile_image: null,
+              role: this.form.role,
+            },
+          })
+        );
+
+        formData.append(
+          "map",
+          JSON.stringify({
+            "0": ["variables.profile_image"],
+          })
+        );
+
+        if (this.form.profile_image) {
+          formData.append("0", this.form.profile_image);
+        }
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
         });
 
-        if (!res || !res.register) throw new Error("Invalid server response");
+        const result = await res.json();
 
-        localStorage.setItem("token", res.register.token);
-  
-        this.$root.$refs.toast.showToast('Account is successfully registered and it will be activated soon and you will get email notification.', 'success');
+        if (result.errors) throw new Error(result.errors[0].message);
 
+        this.$root.$refs.toast.showToast(
+          "Account created! Verify OTP sent to your phone.",
+          "success"
+        );
 
-        this.$root.$refs.toast.showToast('Account successfully added', 'success');
-
-// Wait 1.5 seconds before redirecting
-          setTimeout(() => {
-            this.$router.push("/login");
-          }, 1500);
+        // Redirect to OTP verification page
+        this.$router.push({
+          name: "OtpVerification",
+          query: { phone: this.form.phone },
+        });
       } catch (err) {
-         this.error = err.message || "Registration failed.";
-         this.$root.$refs.toast.showToast(this.error.message || "registration failed", 'error');
+        console.error(err);
+        const message = err?.message || "Failed to create account.";
+        this.$root.$refs.toast.showToast(message, "error");
       } finally {
         this.loading = false;
       }

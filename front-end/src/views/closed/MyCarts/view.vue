@@ -39,60 +39,114 @@
         class="mb-6 border p-4 rounded shadow"
       >
         <!-- Warehouse Header -->
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="font-semibold text-lg">{{ cart.warehouse.name }}</h2>
-          <div class="flex items-center gap-2">
-            <select v-model="cart.deliveryType" class="border rounded px-2 py-1 text-sm">
-              <option value="self_delivery">Self Delivery</option>
-              <option value="company_delivery">Company Delivery</option>
-            </select>
+     <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <!-- Warehouse Name -->
+  <h2 class="text-base font-semibold sm:text-lg">
+    {{ cart.warehouse.name }}
+  </h2>
 
-            <select
-              v-if="cart.deliveryType === 'company_delivery'"
-              v-model="cart.vehicleType"
-              class="border rounded px-2 py-1 text-sm"
-            >
-              <option disabled value="">Select Vehicle</option>
-              <option
-                v-for="vehicle in vehicleTypes"
-                :key="vehicle.id"
-                :value="vehicle.id"
-              >
-                {{ vehicle.title }} - starting: {{ vehicle.starting_price }} ETB
-              </option>
-            </select>
-          </div>
-        </div>
+  <!-- Select Controls -->
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+    <select
+      v-model="cart.deliveryType"
+      class="w-full rounded border px-3 py-2 text-sm sm:w-auto"
+    >
+      <option value="self_delivery">Self Delivery</option>
+      <option value="company_delivery">Company Delivery</option>
+    </select>
+
+    <select
+      v-if="cart.deliveryType === 'company_delivery'"
+      v-model="cart.vehicleType"
+      class="w-full rounded border px-3 py-2 text-sm sm:w-auto"
+    >
+      <option disabled value="">Select Vehicle</option>
+      <option
+        v-for="vehicle in vehicleTypes"
+        :key="vehicle.id"
+        :value="vehicle.id"
+      >
+        {{ vehicle.title }} – starting: {{ vehicle.starting_price }} ETB
+      </option>
+    </select>
+  </div>
+</div>
+
 
         <!-- Cart Items -->
-        <div
-          v-for="item in cart.items"
-          :key="item.id"
-          class="flex items-center justify-between mb-3 border-b py-2"
-        >
-          <div class="flex items-center gap-2 cursor-pointer" @click="productDetail(item.product_sku.product)">
-            <input type="checkbox" v-model="item.selected" @click.stop />
-            <img
-              :src="proxiedImage(item.product_sku.product.imageUrl)"
-              alt=""
-              class="w-12 h-12 object-cover rounded"
-            />
-            <div>
-              <div class="font-semibold">{{ item.product_sku.product.name }}</div>
-              <div class="text-sm text-gray-500">Price: {{ item.price }} ETB</div>
-            </div>
-          </div>
+    <div
+  v-for="item in cart.items"
+  :key="item.id"
+  class="mb-3 flex items-center justify-between border-b py-2"
+>
+  <!-- Product Info -->
+  <div
+    class="flex cursor-pointer items-center gap-2"
+    @click="productDetail(item.product_sku.product)"
+  >
+    <input type="checkbox" v-model="item.selected" @click.stop />
 
-          <!-- Quantity & Delete -->
-          <div class="flex items-center gap-2">
-            <button @click="decreaseQuantity(item)" class="px-2 py-1 border rounded">-</button>
-            <span>{{ item.quantity }}</span>
-            <button @click="increaseQuantity(item)" class="px-2 py-1 border rounded">+</button>
-            <button @click="deleteItem(cart, item)" class="text-red-500 ml-2">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
+    <img
+      :src="$proxiedImage(item.product_sku.product.imageUrl)"
+      alt=""
+      class="h-12 w-12 rounded object-cover"
+    />
+
+    <div>
+      <div class="font-semibold">
+        {{ item.product_sku.product.name }}
+      </div>
+
+      <div class="mt-1 text-sm text-gray-500">
+        Min. Order:
+        <span class="text-xl font-bold text-blue-500">
+          {{ item.product_sku.product.minimum_order_quantity }}
+        </span>
+      </div>
+
+      <div class="text-sm text-gray-500">
+        Price: {{ item.price }} ETB
+      </div>
+
+      <!-- ⚠️ Warning -->
+      <p
+        v-if="item.minOrderWarning"
+        class="mt-1 text-xs text-red-500"
+      >
+        Minimum order reached — not possible
+      </p>
+    </div>
+  </div>
+
+  <!-- Quantity Controls -->
+  <div class="flex items-center gap-2">
+    <button
+      @click="decreaseQuantity(item)"
+      class="rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      −
+    </button>
+
+    <span class="min-w-[24px] text-center">
+      {{ item.quantity }}
+    </span>
+
+    <button
+      @click="increaseQuantity(item)"
+      class="rounded border px-2 py-1"
+    >
+      +
+    </button>
+
+    <button
+      @click="deleteItem(cart, item)"
+      class="ml-2 text-red-500"
+    >
+      <i class="fas fa-trash"></i>
+    </button>
+  </div>
+</div>
+
 
         <!-- Total Amount -->
         <div class="flex justify-end mt-2 font-semibold text-lg">
@@ -228,7 +282,7 @@ async fetchPaymentMethods() {
               warehouse { id name }
               items {
                 id quantity price
-                product_sku { id product { id name imageUrl } }
+                product_sku { id product { id name imageUrl minimum_order_quantity } }
               }
             }
           }
@@ -240,6 +294,7 @@ async fetchPaymentMethods() {
           deliveryType: "self_delivery",
           vehicleType: "",
           items: cart.items.map((i) => ({ ...i, selected: false })),
+          
         }));
 
 
@@ -267,8 +322,41 @@ async fetchPaymentMethods() {
         cart.items.forEach((item) => (item.selected = this.selectAll))
       );
     },
-    increaseQuantity(item) { item.quantity++; },
-    decreaseQuantity(item) { if (item.quantity > 1) item.quantity--; },
+
+
+increaseQuantity(item) {
+  item.quantity++;
+  item.minOrderWarning = false;
+},
+
+decreaseQuantity(item) {
+  const minQty = item.product_sku.product.minimum_order_quantity || 1;
+
+  // ⛔ Stop immediately if at minimum
+  if (item.quantity <= minQty) {
+    // Prevent spam
+    if (!item.minOrderWarning) {
+      item.minOrderWarning = true;
+      this.$root.$refs.toast.showToast(
+        'Cannot order less than minimum order',
+        'error'
+      );
+
+      // Auto-hide warning flag
+      setTimeout(() => {
+        item.minOrderWarning = false;
+      }, 2000);
+    }
+
+    return; // 🔴 IMPORTANT — stops decrease
+  }
+
+  // ✅ Normal decrease
+  item.quantity--;
+  item.minOrderWarning = false;
+}
+,
+
     deleteItem(cart, item) {
       cart.items = cart.items.filter((i) => i.id !== item.id);
       this.showModal("Info", "Item removed from cart.");
