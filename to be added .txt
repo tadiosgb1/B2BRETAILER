@@ -1,0 +1,13 @@
+1. Product filtration 
+2. End point for the 3 points
+2. Payment for deposit and checkout.
+2. wishlist
+2. contacts
+3. Monthly purchase report and analytics
+4. Notification when delivery else.
+5. Barcode Scanner
+6. App Walkthrough / Onboarding
+7. Invoice-before payment but receipt is after payment
+
+
+filters => min orders,location,color,gender,price(max and min),highest reviews,shpment destination,age group,occasion,main material etc,country and region.

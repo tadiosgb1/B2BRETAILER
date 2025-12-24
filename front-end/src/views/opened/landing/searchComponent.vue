@@ -6,13 +6,13 @@
       v-model="searchQuery"
       @input="onSearchInput"
       placeholder="Search products..."
-      class="w-full border border-gray-300 rounded-lg py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+      class="w-full border border-gray-300 rounded-lg py-1 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
     />
     <button
       @click="performSearch"
-      class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500"
+      class="bg-primary rounded-lg  absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 py-0 px-2"
     >
-      <i class="fas fa-search"></i>
+      <i class="fas fa-search text-white"></i>
     </button>
 
     <!-- Search Results Dropdown -->
@@ -31,7 +31,10 @@
           class="w-10 h-10 rounded object-cover"
         />
         <div>
-          <p class="text-sm font-medium">{{ product.name }}</p>
+         <p class="text-sm font-medium">
+    {{ product.name.length > 50 ? product.name.slice(0, 50) + '...' : product.name }}
+  </p>
+
           <p class="text-xs text-gray-500">{{ product.categoryName }}</p>
         </div>
       </div>

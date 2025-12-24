@@ -55,4 +55,22 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+   .custom-scroll::-webkit-scrollbar {
+  width: 2px;  /* super thin */
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: #f3f3f3;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: #a1a1aa;
+  border-radius: 1px;
+}
+
+.custom-scroll {
+  scrollbar-width: thin;          /* Firefox */
+  scrollbar-color: #a1a1aa #f3f3f3; /* Firefox */
+}
+</style>

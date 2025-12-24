@@ -1,22 +1,26 @@
 <template>
-  <header class="w-full bg-white shadow-md">
+  <header class="w-full bg-white shadow-md ">
     <div
       class="container mx-auto py-3 px-4 flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 mt-8"
     >
+
+
       <!-- Logo + Title -->
         <div class="flex items-center gap-2">
         <a href="/">
           <img
             src="../../../assets/img/logo.png"
-            class="w-10 h-10 object-cover cursor-pointer"
+            class="w-12 h-12 object-cover cursor-pointer"
             alt="Ant Retailer Logo"
           />
         </a>
-        <h1 class="text-2xl font-bold text-orange-600">Ant Retailer</h1>
+        <h1 class="text-2xl font-bold text-orange-600">Ant B2B</h1>
       </div>
 
+
+
       <!-- Navigation and Mega Menu -->
-      <div class="flex items-center gap-4 flex-grow">
+      <div class="flex items-center gap-4 flex-grow opacity-100">
         <nav class="bg-white flex-grow">
           <div class="container mx-auto px-4 flex items-center justify-between text-sm font-medium">
             <div
@@ -52,7 +56,7 @@
                   
                   <!-- Categories list -->
                   <div
-                    class="w-96 pt-4 pb-8 border-r border-gray-200 max-h-[420px] overflow-y-auto"
+                   class="w-96 pt-4 pb-8 border-r border-gray-200 max-h-[420px] overflow-y-auto custom-scroll"
                   >
                     <h3 class="flex items-center text-base font-bold mb-3 px-3 text-gray-700">
                       Categories for you
@@ -64,13 +68,13 @@
                       @click="fetchSubCategories(category.id)"
                       class="py-2 px-3 hover:bg-gray-100 cursor-pointer flex items-center text-sm"
                     >
-                      <i class="fa-solid fa-folder mr-2 text-xss text-orange-500"></i>
+                      <i class=" mr-2 text-xss text-orange-500"></i>
                       {{ category.name }}
                     </div>
                   </div>
 
                   <!-- Sub categories area -->
-                  <div class="flex-grow p-4 max-h-[420px] overflow-y-auto">
+                  <div class="flex-grow p-4 max-h-[420px] overflow-y-auto custom-scroll">
                     <h3 class="text-xl font-bold mb-4 text-gray-700">
                       Sub Categories
                     </h3>
@@ -111,8 +115,8 @@
                             class="w-full h-full object-cover rounded-md transition-transform duration-200 group-hover:scale-105"
                           />
                           <img v-else
-                              src="../../../assets/img/product/icon.jpg"
-                              class="w-10 h-10 object-cover cursor-pointer"
+                              src="../../../assets/img/hero/anttext2.jpg"
+                              class="w-full h-full object-cover cursor-pointer opacity-50"
                               alt="Ant Retailer Logo"
                             />
                         </div>
@@ -121,8 +125,6 @@
                       </div>
                     </div>
                   </div>
-
-
                 </div>
               </div>
             </div>
@@ -134,46 +136,44 @@
       <!-- Menu Links -->
     <div class="flex flex-wrap items-center gap-4 text-sm justify-center md:justify-end w-full md:w-auto">
 
-  <a v-if="!token" href="/login" class="px-4 py-2 text-orange-600 font-semibold border border-orange-500 rounded-lg hover:bg-orange-500 hover:text-white transition">Login</a>
-  <a v-if="!token" href="/register" class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition">Register</a>
-<a href="/shop" class="group relative">
-  <i class="fa-solid fa-store text-2xl text-orange-400 group-hover:text-orange-600 transition"></i>
+  <a v-if="token1" href="/login" class="px-4 py-2 text-orange-600 font-semibold border border-orange-500 rounded-lg hover:bg-orange-500 hover:text-white transition">Login</a>
+  <a v-if="token1" href="/register" class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition">Register</a>
+
+
+<a href="/shop" class="group relative flex items-center justify-center text-black hover:text-orange-600 transition text-xl">
+  <i class="fa-solid fa-store"></i>
   <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-   Shop
+    Shop
   </span>
 </a>
 
+<a href="/my-carts" class="group relative flex items-center justify-center text-black hover:text-orange-600 transition text-2xl">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+  </svg>
+  <span v-if="cardsCout > 0" class="absolute top-0 right-0 -mt-1 -mr-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{{ cardsCout }}</span>
+  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+    Cart
+  </span>
+</a>
 
-  <a href="/my-carts" class="relative group flex items-center">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-    </svg>
-    <span v-if="cardsCout > 0" class="absolute top-0 right-0 -mt-1 -mr-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{{ cardsCout }}</span>
-    <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-      Cart
-    </span>
-  </a>
+<a href="/orders" class="group relative flex items-center justify-center text-black hover:text-orange-600 transition text-2xl">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+    <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25ZM3.5 8v7.75c0 .414.336.75.75.75h11.5a.75.75 0 0 0 .75-.75V8h-13ZM5 4.25a.75.75 0 0 0-.75.75v.01c0 .414.336.75.75.75h.01a.75.75 0 0 0 .75-.75V5a.75.75 0 0 0-.75-.75H5ZM7.25 5A.75.75 0 0 1 8 4.25h.01a.75.75 0 0 1 .75.75v.01a.75.75 0 0 1-.75.75H8a.75.75 0 0 1-.75-.75V5ZM11 4.25a.75.75 0 0 0-.75.75v.01c0 .414.336.75.75.75h.01a.75.75 0 0 0 .75-.75V5a.75.75 0 0 0-.75-.75H11Z" clip-rule="evenodd" />
+  </svg>
+  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+    Orders
+  </span>
+</a>
 
-  <a href="/orders" class="group relative flex items-center">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-      <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25ZM3.5 8v7.75c0 .414.336.75.75.75h11.5a.75.75 0 0 0 .75-.75V8h-13ZM5 4.25a.75.75 0 0 0-.75.75v.01c0 .414.336.75.75.75h.01a.75.75 0 0 0 .75-.75V5a.75.75 0 0 0-.75-.75H5ZM7.25 5A.75.75 0 0 1 8 4.25h.01a.75.75 0 0 1 .75.75v.01a.75.75 0 0 1-.75.75H8a.75.75 0 0 1-.75-.75V5ZM11 4.25a.75.75 0 0 0-.75.75v.01c0 .414.336.75.75.75h.01a.75.75 0 0 0 .75-.75V5a.75.75 0 0 0-.75-.75H11Z" clip-rule="evenodd" />
-    </svg>
-    <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-      Orders
-    </span>
-  </a>
-
-  <a href="/account" class="group relative flex items-center">
-    <i class="fa-regular fa-user text-2xl text-black group-hover:text-orange-600 transition"></i>
-    <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-      Account
-    </span>
-  </a>
-
+<a href="/account" class="group relative flex items-center justify-center text-black hover:text-orange-600 transition text-2xl">
+  <i class="fa-regular fa-user"></i>
+  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+    Account
+  </span>
+</a>
 </div>
-
-    </div>
-
+</div>
     <hr class="border-gray-200" />
   </header>
 </template>
@@ -332,8 +332,25 @@ export default {
 </script>
 
 <style scoped>
+  .custom-scroll::-webkit-scrollbar {
+  width: 2px;  /* super thin */
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: #f3f3f3;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: #a1a1aa;
+  border-radius: 1px;
+}
+
+.custom-scroll {
+  scrollbar-width: thin;          /* Firefox */
+  scrollbar-color: #a1a1aa #f3f3f3; /* Firefox */
+}
 header { position: relative; }
 .absolute { position: absolute; }
-.w-64::-webkit-scrollbar { width: 6px; }
+.w-64::-webkit-scrollbar { width: 2px; }
 .w-64::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.2); border-radius: 3px; }
 </style>

@@ -4,7 +4,7 @@
       
       <!-- SIDEBAR CATEGORY LIST -->
       <div
-        class="lg:w-64 w-full bg-white border-r border-gray-200 overflow-y-auto lg:h-screen lg:flex-shrink-0"
+        class="lg:w-64 w-full bg-white border-r border-gray-200 overflow-y-auto custom-scroll lg:h-screen lg:flex-shrink-0"
         style="z-index: 10;"
         aria-label="sidebar"
       >
@@ -18,7 +18,7 @@
          
             <div
               @click="handleCategorySelection(null);allCliked=true"
-              class="px-4 py-2 cursor-pointer rounded hover:bg-orange-100 flex justify-between items-center mt-2 border-t bg-white"
+              class="px-4 py-2 cursor-pointer rounded hover:bg-orange-100 flex justify-between items-center mt-2  bg-white"
             >
               <span class="font-bold text-gray-800">All Categories</span>
             </div>
@@ -37,15 +37,7 @@
       
       <!-- MAIN PRODUCTS CONTENT -->
       <div class="flex-1 p-3 overflow-auto">
-      <div class="mb-6 mx-0 lg:mx-0 flex items-center gap-4 bg-white  rounded-lg border border-gray-200 p-2 hover:shadow-lg transition-shadow duration-300">
-      <input
-        v-model="searchTerm"
-        @input="fetchProducts(null,searchTerm)"
-        type="text"
-        placeholder="Search products..."
-        class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200 text-gray-700 placeholder-gray-400"
-        />
-      </div>
+     
 
 <!-- All Filters Modal -->
 <dialog id="filtersModal" v-if="allFilters" class="rounded-xl p-0 w-full max-w-3xl shadow-2xl">
@@ -669,6 +661,24 @@ console.log("sortOption",this.sortOption);
 </script>
 
 <style scoped>
+  
+   .custom-scroll::-webkit-scrollbar {
+  width: 2px;  /* super thin */
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: #f3f3f3;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: #a1a1aa;
+  border-radius: 1px;
+}
+
+.custom-scroll {
+  scrollbar-width: thin;          /* Firefox */
+  scrollbar-color: #a1a1aa #f3f3f3; /* Firefox */
+} 
   .scrollbar-thin::-webkit-scrollbar {
   height: 4px;
 }
