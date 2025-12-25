@@ -1,5 +1,12 @@
 <template>
   <header class="w-full bg-white shadow-md ">
+
+      <div
+      v-if="showMegaMenu"
+      class="fixed inset-0 top-[170px] lg:top-[96px] bg-black/30 backdrop-blur-sm z-40"
+      @click="showMegaMenu = false"
+    ></div>
+
     <div
       class="container mx-auto py-3 px-4 flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 mt-8"
     >
@@ -50,7 +57,7 @@
               <!-- Mega Menu -->
               <div
                 v-if="showMegaMenu"
-                class="w-full bg-white absolute top-[80px] -left-6 z-50 border-t border-gray-200 shadow-xl mt-10 lg:-mt-5"
+                class="w-full bg-white absolute top-[78px] -left-6 z-50 border-t border-gray-200 shadow-xl mt-10 xl:-mt-5"
               >
                 <div class="container mx-auto flex">
                   
@@ -216,6 +223,7 @@ export default {
   },
 
   methods: {
+    
     proxiedImage(url) {      
     // Return default placeholder if no URL provided
         if (!url || url.trim() == '') {
