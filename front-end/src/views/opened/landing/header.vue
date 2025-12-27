@@ -57,7 +57,7 @@
               <!-- Mega Menu -->
               <div
                 v-if="showMegaMenu"
-                class="w-full bg-white absolute top-[78px] -left-6 z-50 border-t border-gray-200 shadow-xl mt-10 xl:-mt-5"
+                class="w-full bg-white absolute top-0 -left-6 z-50 border-t border-gray-200 shadow-xl mt-32 md:mt-14 "
               >
                 <div class="container mx-auto flex">
                   
@@ -69,15 +69,16 @@
                       Categories for you
                     </h3>
 
-                    <div
-                      v-for="category in categories"
-                      :key="category.id"
-                      @click="fetchSubCategories(category.id)"
-                      class="py-2 px-3 hover:bg-gray-100 cursor-pointer flex items-center text-sm"
-                    >
-                      <i class=" mr-2 text-xss text-orange-500"></i>
-                      {{ category.name }}
-                    </div>
+                  <div
+                    v-for="category in categories"
+                    :key="category.id"
+                    @click="fetchSubCategories(category.id)"
+                    class="py-2 px-3 hover:bg-gray-100 cursor-pointer flex items-center text-sm"
+                  >
+                    <span>{{ category.name }}</span>
+                    <i class="fas fa-chevron-right ml-auto text-gray-400"></i> <!-- right arrow -->
+                  </div>
+
                   </div>
 
                   <!-- Sub categories area -->

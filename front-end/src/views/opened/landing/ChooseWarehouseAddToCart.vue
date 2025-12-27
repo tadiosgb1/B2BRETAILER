@@ -32,7 +32,7 @@
         <button
           @click="addToCart"
           :disabled="!selectedWarehouse"
-          class="w-full mt-4 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+          class="w-full mt-4 py-3 bg-primary text-white font-bold rounded-lg hover:bg-orange-600 transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           <i class="fas fa-cart-plus"></i>
           Add {{ quantity }} to Cart from {{ selectedWarehouse?.name || 'Selected Warehouse' }}

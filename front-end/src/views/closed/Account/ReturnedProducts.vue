@@ -42,7 +42,7 @@
       >
         <!-- Product Image -->
         <img
-          v-if="item.orderItem?.product_sku?.product?.imageUrl"
+          v-if="$proxiedImage(item.orderItem?.product_sku?.product?.imageUrl)"
           :src="item.orderItem.product_sku.product.imageUrl"
           class="w-full h-32 object-cover rounded cursor-pointer hover:opacity-90 transition"
           @click="goToProductDetail(item.orderItem.product_sku.product)"
