@@ -1,22 +1,47 @@
 <template>
-  <div class="bg-white p-6 rounded shadow-md mx-auto mt-8">
-    <h2 class="text-lg font-semibold mb-4">Change Password</h2>
-    <form @submit.prevent="submitPasswordChange">
-      <label class="block mb-2">New Password</label>
-      <input v-model="form.new" type="password" class="w-full border rounded p-2 mb-4" required>
+  <div class="bg-white p-6 rounded shadow-md mt-8 ">
+    <h2 class="text-lg font-semibold mb-6">Change Password</h2>
+    <form @submit.prevent="submitPasswordChange" class="flex flex-col lg:flex-row lg:flex-wrap lg:gap-x-6">
+      
+      <!-- New Password -->
+      <div class="w-full lg:w-1/3 mb-4 flex flex-col">
+        <label class="text-sm font-medium mb-1">New Password</label>
+        <input
+          v-model="form.new"
+          type="password"
+          class="border rounded p-2 w-full"
+          required
+        >
+      </div>
 
-      <label class="block mb-2">Confirm Password</label>
-      <input v-model="form.confirm" type="password" class="w-full border rounded p-2 mb-4" required>
+      <!-- Confirm Password -->
+      <div class="w-full lg:w-1/3 mb-4 flex flex-col">
+        <label class="text-sm font-medium mb-1">Confirm Password</label>
+        <input
+          v-model="form.confirm"
+          type="password"
+          class="border rounded p-2 w-full"
+          required
+        >
+      </div>
 
-      <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
-        Change
-      </button>
+      <!-- Submit Button -->
+      <div class="w-full mt-4">
+        <button
+          type="submit"
+          class="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition w-full lg:w-auto"
+        >
+          Change
+        </button>
+      </div>
 
+      <!-- Messages -->
       <p v-if="errorMessage" class="text-red-500 text-sm mt-2">{{ errorMessage }}</p>
       <p v-if="successMessage" class="text-green-600 text-sm mt-2">{{ successMessage }}</p>
     </form>
   </div>
 </template>
+
 
 <script>
 import { gql, request } from "graphql-request";

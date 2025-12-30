@@ -27,6 +27,7 @@
             class="ml-5"
             @select-category="handleCategorySelection"
           />
+          
           <li v-if="categories.length > 5" class="px-4 py-2 cursor-pointer text-sm text-orange-500 hover:text-orange-600"
               @click="showAllCategories = !showAllCategories">
             {{ showAllCategories ? 'Show Less' : 'View All' }}
@@ -40,7 +41,7 @@
 
               <!-- SORT FILTER -->
               <div class="flex flex-col">
-                <label for="sortOption" class="text-sm font-semibold mb-1 flex items-center gap-1">
+                <label for="sortOption" class="text-sm font-semibold mb-1 flex items-center gap-1 text-gray-600">
                   <i class="fas fa-sort text-orange-500 text-xs"></i> Sort By
                 </label>
                 <select id="sortOption" @change="fetchProducts(null, null)" v-model="sortOption"
@@ -54,7 +55,7 @@
 
               <!-- MIN ORDER -->
               <div class="flex flex-col">
-                <label for="minOrder" class="text-sm font-semibold mb-1 flex items-center gap-1">
+                <label for="minOrder" class="text-sm font-semibold mb-1 flex items-center gap-1 text-gray-600">
                   <i class="fas fa-sort-numeric-up text-orange-500 text-xs"></i> Min Order
                 </label>
                 <input id="minOrder" v-model="min_order" type="number" placeholder="Enter MOQ"
@@ -63,7 +64,7 @@
 
               <!-- PRICE RANGE -->
               <div class="flex flex-col">
-                <label class="text-sm font-semibold mb-1 flex items-center gap-1">
+                <label class="text-sm font-semibold mb-1 flex items-center gap-1 text-gray-600">
                   <i class="fas fa-tag text-orange-500 text-xs"></i> Price Range
                 </label>
                 <div class="flex gap-2">
@@ -113,45 +114,87 @@
           </div>
 
           <!-- REAL PRODUCTS GRID -->
-          <div v-else class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div v-for="product in productsGrid" :key="product.id"
-              class="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md cursor-pointer flex flex-col">
-              
-              <div @click="goToProductDetail(product)" class="relative w-full h-32 bg-gray-100 rounded overflow-hidden">
-                <img :src="proxiedImage(product.imageSrc)" class="w-full h-full object-cover"
-                  :alt="product.name.slice(0, 50)" />
-              </div>
+         <div v-else class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 
-              <h3 class="text-sm font-medium">
-                {{ product.name.length > 50 ? product.name.slice(0, 50) + '...' : product.name }}
-              </h3>
+  <div
+    v-for="product in productsGrid"
+    :key="product.id"
+    class="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md cursor-pointer flex flex-col min-h-[520px]"
+  >
 
-              <p class="text-sm text-gray-500">Category: {{ product.categoryName || 'N/A' }}</p>
-              <div class="flex flex-col space-x-0 lg:flex-row lg:space-x-4">
-                <p class="text-xs text-gray-400">MOQ: {{ product.minimum_order_quantity }}</p>
-                <p class="inline-block bg-orange-100 text-dark text-xs font-semibold px-2 py-1 rounded-full">
-                  Price: <span class="text-primary text-lg">{{ product.skus[0]?.sell_price }}</span> ETB
-                </p>
-              </div>
+    <!-- PRODUCT IMAGE (NO CROP, TALL) -->
+    <div
+      @click="goToProductDetail(product)"
+      class="relative w-full h-56 bg-gray-100 rounded flex items-center justify-center"
+    >
+      <img
+        :src="proxiedImage(product.imageSrc)"
+        :alt="product.name.slice(0, 50)"
+        class="w-full h-full object-contain p-2"
+      />
+    </div>
 
-              <!-- RATING STARS (always 5 stars) -->
-              <div class="flex space-x-1">
-                <template v-for="i in 5" :key="i">
-                  <svg v-if="i <= Math.floor(product.rate)" class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.962a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.963c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.963a1 1 0 00-.364-1.118L2.067 9.39c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.962z" />
-                  </svg>
-                  <svg v-else class="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.962a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.963c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.963a1 1 0 00-.364-1.118L2.067 9.39c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.962z" />
-                  </svg>
-                </template>
-              </div>
+    <!-- PRODUCT NAME -->
+    <h3 class="text-sm font-medium truncate mt-2">
+      {{ product.name }}
+    </h3>
 
-              <button @click.stop="openWarehouseModal(product)"
-                      class="my-3 rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-primary hover:bg-orange-100">
-                Add to Cart
-              </button>
-            </div>
-          </div>
+    <!-- CATEGORY -->
+    <p class="text-sm text-gray-500 mt-1">
+      Category: {{ product.categoryName || 'N/A' }}
+    </p>
+
+    <!-- PRICE & MOQ -->
+    <div class="flex items-center justify-between w-full mt-2">
+      <p class="inline-block bg-orange-100 text-dark text-xs font-semibold px-2 py-1 rounded-full">
+        <span class="text-primary text-lg">
+          {{ product.skus[0]?.sell_price }}
+        </span>
+        ETB
+      </p>
+
+      <p class="text-xs text-gray-400 text-right">
+        MOQ: {{ product.minimum_order_quantity }}
+      </p>
+    </div>
+
+    <!-- RATING -->
+    <div class="flex space-x-1 mt-2">
+      <template v-for="i in 5" :key="i">
+        <svg
+          v-if="i <= Math.floor(product.rate)"
+          class="w-6 h-6 text-yellow-400"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.962a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.963c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.963a1 1 0 00-.364-1.118L2.067 9.39c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.962z"
+          />
+        </svg>
+
+        <svg
+          v-else
+          class="w-6 h-6 text-gray-300"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.962a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.963c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.963a1  0 00-.364-1.118L2.067 9.39c-.783-.57-.38-1.81.588-1.81h4.162a1 0 00.95-.69l1.286-3.962z"
+          />
+        </svg>
+      </template>
+    </div>
+
+    <!-- ADD TO CART BUTTON -->
+    <button
+      @click.stop="openWarehouseModal(product)"
+      class="mt-12 mb-3 rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-primary hover:bg-orange-100"
+    >
+      Add to Cart
+    </button>
+  </div>
+</div>
+
 
         </div>
       </div>

@@ -5,7 +5,9 @@
       class="px-4 py-2 cursor-pointer rounded hover:bg-orange-100 flex justify-between items-center bg-white"
       @click="onCategoryClick"
     >
-      <span class="text-gray-800">{{ category.name }}</span>
+     <span class="text-[14px] text-gray-500" style="font-family: sans-serif;">
+  {{ category.name }}
+</span>
 
       <span v-if="hasChildren">
         <i v-if="!open" class="fas fa-plus text-gray-500"></i>

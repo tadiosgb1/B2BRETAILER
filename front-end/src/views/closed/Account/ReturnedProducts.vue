@@ -31,44 +31,54 @@
     </div>
 
     <!-- Returned Products Grid -->
-    <div
-      v-else
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-    >
-      <div
-        v-for="item in returns"
-        :key="item.id"
-        class="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md transition"
-      >
-        <!-- Product Image -->
-        <img
-          v-if="$proxiedImage(item.orderItem?.product_sku?.product?.imageUrl)"
-          :src="item.orderItem.product_sku.product.imageUrl"
-          class="w-full h-32 object-cover rounded cursor-pointer hover:opacity-90 transition"
-          @click="goToProductDetail(item.orderItem.product_sku.product)"
-        />
+<div
+  v-else
+  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+>
+  <div
+    v-for="item in returns"
+    :key="item.id"
+    class="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md transition flex flex-col"
+  >
+    <!-- Product Image -->
+    <img
+      v-if="$proxiedImage(item.orderItem?.product_sku?.product?.imageUrl)"
+      :src="item.orderItem.product_sku.product.imageUrl"
+      class="w-full mb-4 rounded cursor-pointer hover:opacity-90 transition"
+      @click="goToProductDetail(item.orderItem.product_sku.product)"
+      alt="Product Image"
+      style="object-fit: contain; max-height: 300px;"
+    />
 
-        <h3 class="font-bold text-gray-900 mt-3 text-lg">
-          {{ item.orderItem?.product_sku?.product?.name.slice(0, 50) || "Unnamed Product" }}
-          
-        </h3>
- 
-        
+    <!-- Product Name -->
+    <h3 class="font-bold text-gray-900 text-lg mb-2 truncate">
+      {{ item.orderItem?.product_sku?.product?.name || "Unnamed Product" }}
+    </h3>
 
-        <p class="text-sm text-gray-500">
-          Quantity Returned: <span class="text-primary text-lg font-bold">{{ item.quantity }}</span>
-        </p>
+    <!-- Quantity Returned -->
+    <p class="text-sm text-gray-500 mb-1">
+      <span class="font-medium text-gray-700">Quantity Returned:</span>
+      <span class="text-primary text-base font-bold">{{ item.quantity }}</span>
+    </p>
 
-        <p class="text-sm text-gray-500">
-          Reason: {{ item.reason }}
-        </p>
+    <!-- Reason -->
+    <p class="text-sm text-gray-500 mb-1">
+      <span class="font-medium text-gray-700">Reason:</span>
+      <span>{{ item.reason }}</span>
+    </p>
 
-        <p class="text-sm font-semibold text-gray-700">
-          Status:  <span class="text-primary"> {{ item.status }}</span>
-        </p>
-        
-      </div>
-    </div>
+    <!-- Status -->
+    <p class="text-sm font-semibold text-gray-700 mt-auto">
+      <span class="font-medium">Status:</span>
+      <span class="text-primary">{{ item.status }}</span>
+    </p>
+  </div>
+</div>
+
+
+
+
+
   </div>
 </template>
 

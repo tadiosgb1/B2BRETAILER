@@ -54,13 +54,14 @@
 
       <!-- Submit Button full width -->
       <div class="sm:col-span-2">
-        <button
-          type="submit"
-          class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full"
-        >
-          Save
-        </button>
-      </div>
+  <button
+    type="submit"
+    class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-auto"
+  >
+    Save
+  </button>
+</div>
+
     </form>
 
     <p v-else>Loading geo location...</p>

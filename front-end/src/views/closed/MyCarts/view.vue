@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <Header />
+  <div class="h-screen flex flex-col overflow-hidden">
+    <Header class="fixed top-0 w-full z-50 shadow-md bg-white " />
+    <main class="flex-1 overflow-y-auto ">
 
     <div class="container mx-auto p-4 relative">
       <h1 class="text-2xl font-bold mb-4">My Carts</h1>
@@ -192,6 +193,8 @@
         </div>
       </div>
     </div>
+</main>
+
   </div>
 </template>
 
@@ -407,4 +410,22 @@ decreaseQuantity(item) {
   animation: spin 1s linear infinite;
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+main::-webkit-scrollbar {
+  width: 4px; /* ultra-thin scrollbar */
+}
+
+main::-webkit-scrollbar-track {
+  background: transparent; /* invisible track */
+}
+
+main::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* subtle dark thumb */
+  border-radius: 2px; /* rounded edges */
+}
+
+/* Scrollbar styling for Firefox */
+main {
+  scrollbar-width: thin; /* thin scrollbar */
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* thumb color + track color */
+}
 </style>

@@ -1,11 +1,15 @@
 <template>
-  <header class="w-full bg-white shadow-md ">
+  <header class="w-full bg-white shadow-md  fixed">
 
-      <div
-      v-if="showMegaMenu"
-      class="fixed inset-0 top-[170px] lg:top-[96px] bg-black/30 backdrop-blur-sm z-40"
-      @click="showMegaMenu = false"
-    ></div>
+  <div
+  v-if="showMegaMenu"
+  class="fixed inset-0 top-[170px] lg:top-[96px]
+         bg-gray-900/10 backdrop-blur-[0.7px] z-40"
+  @click="showMegaMenu = false"
+></div>
+
+
+
 
     <div
       class="container mx-auto py-3 px-4 flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 mt-8"
@@ -16,8 +20,8 @@
         <div class="flex items-center gap-2">
         <a href="/">
           <img
-            src="../../../assets/img/logo.png"
-            class="w-12 h-12 object-cover cursor-pointer"
+            src="../../../assets/img/logo4.jpg"
+            class="w-full h-8 rounded-full object-cover cursor-pointer"
             alt="Ant Retailer Logo"
           />
         </a>
@@ -57,7 +61,7 @@
               <!-- Mega Menu -->
               <div
                 v-if="showMegaMenu"
-                class="w-full bg-white absolute top-0 -left-6 z-50 border-t border-gray-200 shadow-xl mt-32 md:mt-14 "
+                class="w-full bg-white absolute top-0 -left-6 z-50 border-t border-gray-200 shadow-xl mt-40 md:mt-23 "
               >
                 <div class="container mx-auto flex">
                   
@@ -73,9 +77,9 @@
                     v-for="category in categories"
                     :key="category.id"
                     @click="fetchSubCategories(category.id)"
-                    class="py-2 px-3 hover:bg-gray-100 cursor-pointer flex items-center text-sm"
+                    class="py-2 px-3 hover:bg-gray-100 cursor-pointer flex items-center text-[14px] text-gray-600"
                   >
-                    <span>{{ category.name }}</span>
+                    <span style="font-family: sans-serif;" >{{ category.name }}</span>
                     <i class="fas fa-chevron-right ml-auto text-gray-400"></i> <!-- right arrow -->
                   </div>
 
@@ -129,7 +133,7 @@
                             />
                         </div>
 
-                        <p class="mt-2 text-sm text-gray-700 text-center">{{ sub.name }}</p>
+                        <p class="mt-2 text-xss text-gray-500 text-center  " style="font-family: sans-serif;">{{ sub.name }}</p>
                       </div>
                     </div>
                   </div>
@@ -148,35 +152,35 @@
   <a v-if="token1" href="/register" class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition">Register</a>
 
 
-<a href="/shop" class="group relative flex items-center justify-center text-black hover:text-orange-600 transition text-xl">
+<a href="/shop" class="group relative flex items-center justify-center text-gray-600 hover:text-orange-600 transition text-xl">
   <i class="fa-solid fa-store"></i>
-  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-gray-500 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
     Shop
   </span>
 </a>
 
-<a href="/my-carts" class="group relative flex items-center justify-center text-black hover:text-orange-600 transition text-2xl">
+<a href="/my-carts" class="group relative flex items-center justify-center text-gray-600 hover:text-orange-600 transition text-2xl">
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
   </svg>
   <span v-if="cardsCout > 0" class="absolute top-0 right-0 -mt-1 -mr-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{{ cardsCout }}</span>
-  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-gray-500 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
     Cart
   </span>
 </a>
 
-<a href="/orders" class="group relative flex items-center justify-center text-black hover:text-orange-600 transition text-2xl">
+<a href="/orders" class="group relative flex items-center justify-center text-gray-600 hover:text-orange-600 transition text-2xl">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
     <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25ZM3.5 8v7.75c0 .414.336.75.75.75h11.5a.75.75 0 0 0 .75-.75V8h-13ZM5 4.25a.75.75 0 0 0-.75.75v.01c0 .414.336.75.75.75h.01a.75.75 0 0 0 .75-.75V5a.75.75 0 0 0-.75-.75H5ZM7.25 5A.75.75 0 0 1 8 4.25h.01a.75.75 0 0 1 .75.75v.01a.75.75 0 0 1-.75.75H8a.75.75 0 0 1-.75-.75V5ZM11 4.25a.75.75 0 0 0-.75.75v.01c0 .414.336.75.75.75h.01a.75.75 0 0 0 .75-.75V5a.75.75 0 0 0-.75-.75H11Z" clip-rule="evenodd" />
   </svg>
-  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-gray-500 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
     Orders
   </span>
 </a>
 
-<a href="/account" class="group relative flex items-center justify-center text-black hover:text-orange-600 transition text-2xl">
+<a href="/account" class="group relative flex items-center justify-center text-gray-600 hover:text-orange-600 transition text-2xl">
   <i class="fa-regular fa-user"></i>
-  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+  <span class="absolute bottom-full mb-2 hidden group-hover:block bg-gray-500 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
     Account
   </span>
 </a>

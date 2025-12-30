@@ -6,7 +6,7 @@
       v-model="searchQuery"
       @input="onSearchInput"
       placeholder="Search products..."
-      class="w-full border border-gray-300 rounded-lg py-1 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+      class="w-full border border-gray-300 rounded-lg py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
     />
     <button
       @click="performSearch"
@@ -31,11 +31,10 @@
           class="w-10 h-10 rounded object-cover"
         />
         <div>
-         <p class="text-sm font-medium">
-    {{ product.name.length > 50 ? product.name.slice(0, 50) + '...' : product.name }}
-  </p>
+         <p class="w-64 text-sm font-medium truncate">
+          {{ product.name }}
+        </p>
 
-          <p class="text-xs text-gray-500">{{ product.categoryName }}</p>
         </div>
       </div>
     </div>

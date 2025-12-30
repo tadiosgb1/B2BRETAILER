@@ -1,17 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-r from-blue-50 via-white to-green-50">
-    <!-- HEADER -->
-    <Header />
+  <div class="flex flex-col h-screen bg-gradient-to-r from-blue-50 via-white to-green-50">
+    <!-- FIXED HEADER -->
+    <Header class="fixed top-0 left-0 w-full z-50 shadow-md bg-white" />
 
-    <!-- HERO SECTION -->
-
-    <Hero  />
-     <Products :category_id="category_id" />
-    <!-- FAQs -->
-   
-
-    <!-- FOOTER -->
-    <Footer />
+    <!-- SCROLLABLE MAIN CONTENT -->
+    <main class="flex-1 overflow-auto "> <!-- Adjust mt-[64px] to header height -->
+      <Hero />
+      <Products :category_id="category_id" />
+      <Footer />
+    </main>
   </div>
 </template>
 
@@ -20,57 +17,43 @@ import Header from "./header.vue";
 import Footer from "./footer.vue";
 import Hero from "./hero.vue";
 import Products from "./products.vue";
-// Simple reusable feature card component inside same file
+
 export default {
   components: {
     Header,
     Footer,
     Hero,
-  
     Products,
-    FeatureCard: {
-      props: ["title", "desc"],
-      template: `
-        <div class="p-6 bg-white rounded-xl shadow hover:shadow-xl transition">
-          <h3 class="text-xl font-semibold text-green-700">{{ title }}</h3>
-          <p class="mt-3 text-gray-600">{{ desc }}</p>
-        </div>
-      `,
-    },
   },
-
-
-  data(){
-    return{
-      category_id:"",
-    }
+  data() {
+    return {
+      category_id: "",
+    };
   },
-
-
-  mounted(){
-    this.category_id=this.$route.query.category_id;
-    console.log("categoy id",this.category_id);
-  }
-
+  mounted() {
+    this.category_id = this.$route.query.category_id;
+  },
 };
 </script>
 
 <style scoped>
-   .custom-scroll::-webkit-scrollbar {
-  width: 2px;  /* super thin */
+/* Scrollbar styling for Chrome, Safari, Edge */
+main::-webkit-scrollbar {
+  width: 4px; /* ultra-thin scrollbar */
 }
 
-.custom-scroll::-webkit-scrollbar-track {
-  background: #f3f3f3;
+main::-webkit-scrollbar-track {
+  background: transparent; /* invisible track */
 }
 
-.custom-scroll::-webkit-scrollbar-thumb {
-  background-color: #a1a1aa;
-  border-radius: 1px;
+main::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* subtle dark thumb */
+  border-radius: 2px; /* rounded edges */
 }
 
-.custom-scroll {
-  scrollbar-width: thin;          /* Firefox */
-  scrollbar-color: #a1a1aa #f3f3f3; /* Firefox */
+/* Scrollbar styling for Firefox */
+main {
+  scrollbar-width: thin; /* thin scrollbar */
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* thumb color + track color */
 }
 </style>

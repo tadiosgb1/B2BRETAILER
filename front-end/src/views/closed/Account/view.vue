@@ -1,30 +1,46 @@
 <template>
-   <Header />
+
+  <div class="h-screen flex flex-col overflow-hidden">
+   <Header class="fixed top-0 w-full z-50 shadow-md bg-white" />
+   <main class="flex-1 overflow-y-auto ">
 
   <div class="flex flex-col min-h-screen">
    
     <!-- WALLET TOP FIXED -->
-    <div
-      class="bg-orange-500 text-white rounded-lg mx-4 mt-4 p-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-md gap-3"
-    >
-      <div class="flex items-center gap-4 w-full sm:w-auto">
-        <div class="text-lg font-semibold">
-          {{ showBalance ? walletBalance + " ETB" : "••••• ETB" }}
-        </div>
-        <button @click="toggleBalance" class="text-white">
-          <i :class="showBalance ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-        </button>
-      </div>
-
-      <div class="flex gap-2 mt-2 sm:mt-0 w-full sm:w-auto">
-        <button
-          @click="showDepositModal = true"
-          class="bg-white text-orange-500 px-3 py-2 rounded shadow hover:bg-gray-100 w-full sm:w-auto"
-        >
-          <i class="fas fa-plus"></i>
-        </button>
-      </div>
+  <div
+  class="bg-gray-100 text-gray-900 rounded-xl mx-4 mt-4 p-4 mb-4
+         flex flex-col sm:flex-row items-start sm:items-center
+         justify-between gap-3 border border-gray-200 shadow-sm"
+>
+  <!-- Balance + Toggle -->
+  <div class="flex items-center gap-4 w-full sm:w-auto">
+    <div class="text-lg font-semibold tracking-wide text-primary">
+      {{ showBalance ? walletBalance + " ETB" : "••••• ETB" }}
     </div>
+
+    <button
+      @click="toggleBalance"
+      class="text-primary hover:text-orange-900 transition"
+      aria-label="Toggle balance visibility"
+    >
+      <i :class="showBalance ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+    </button>
+  </div>
+
+  <!-- Action -->
+  <div class="flex gap-2 mt-2 sm:mt-0 w-full sm:w-auto">
+    <button
+      @click="showDepositModal = true"
+      class="flex items-center justify-center gap-2
+             bg-orange-500 text-white px-4 py-2 rounded-lg
+             shadow hover:bg-orange-600 transition w-full sm:w-auto"
+    >
+      <i class="fas fa-plus"></i>
+      <span class="text-sm font-medium">Deposit</span>
+    </button>
+  </div>
+</div>
+
 
     <!-- LOADING OVERLAY FOR WALLET BALANCE -->
     <div
@@ -112,6 +128,9 @@
     <!-- DEPOSIT MODAL -->
     <DepositModal v-if="showDepositModal" @close="showDepositModal = false" />
   </div>
+  </main>
+</div>
+
 </template>
 
 <script>
@@ -217,5 +236,23 @@ export default {
   100% {
     transform: rotate(360deg);
   }
+}
+main::-webkit-scrollbar {
+  width: 4px; /* ultra-thin scrollbar */
+}
+
+main::-webkit-scrollbar-track {
+  background: transparent; /* invisible track */
+}
+
+main::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* subtle dark thumb */
+  border-radius: 2px; /* rounded edges */
+}
+
+/* Scrollbar styling for Firefox */
+main {
+  scrollbar-width: thin; /* thin scrollbar */
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* thumb color + track color */
 }
 </style>
