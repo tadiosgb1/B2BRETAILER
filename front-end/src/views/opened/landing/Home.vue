@@ -212,94 +212,189 @@ export default {
     window.removeEventListener("resize", this.updateCategoryScrollArrows);
   },
   methods: {
-    proxiedImage(url,type,name) {
-      if (!url || url.trim() === '') return '../../../assets/img/product/icon.jpg';
-      if (import.meta.env.MODE === 'production') return url.replace(/^http:\/\/78\.47\.138\.239:8080/, '');
+    proxiedImage(url) {
+      if (!url || url.trim() === "") return "../../../assets/img/product/icon.jpg";
+      if (import.meta.env.MODE === "production") {
+        return url.replace(/^http:\/\/78\.47\.138\.239:8080/, "");
+      }
       return url;
     },
+
     goToShop(category_id) {
       this.$router.push({ name: "Shop", query: { category_id } });
     },
+
     scrollCategories(amount) {
       const container = this.$refs.categoriesContainer;
       if (!container) return;
       container.scrollBy({ left: amount, behavior: "smooth" });
       setTimeout(this.updateCategoryScrollArrows, 200);
     },
+
     updateCategoryScrollArrows() {
       const container = this.$refs.categoriesContainer;
       if (!container) return;
       this.canScrollPrevCategory = container.scrollLeft > 0;
-      this.canScrollNextCategory = container.scrollLeft + container.clientWidth < container.scrollWidth - 1;
+      this.canScrollNextCategory =
+        container.scrollLeft + container.clientWidth < container.scrollWidth - 1;
     },
+
     scrollProducts(amount, sectionId) {
       let container = this.$refs["section-" + sectionId];
-      if (!container) return;
       if (Array.isArray(container)) container = container[0];
+      if (!container) return;
+
       container.scrollBy({ left: amount, behavior: "smooth" });
       setTimeout(() => this.updateProductScrollArrows(sectionId), 200);
     },
+
     updateProductScrollArrows(sectionId) {
       let container = this.$refs["section-" + sectionId];
-      if (!container) return;
       if (Array.isArray(container)) container = container[0];
+      if (!container) return;
+
       const section = this.sections.find(s => s.id === sectionId);
       if (!section) return;
-      const scrollLeft = container.scrollLeft;
+
       const maxScroll = container.scrollWidth - container.clientWidth;
-      section.scroll.prev = scrollLeft > 0;
-      section.scroll.next = scrollLeft < maxScroll - 1;
+      section.scroll.prev = container.scrollLeft > 0;
+      section.scroll.next = container.scrollLeft < maxScroll - 1;
     },
+
     goToProductDetail(product) {
-      if (product?.id && this.$router) this.$router.push({ name: "ProductDetail", params: { id: product.id } });
+      if (product?.id) {
+        this.$router.push({ name: "ProductDetail", params: { id: product.id } });
+      }
     },
+
     async fetchCategories() {
       try {
         const endpoint = import.meta.env.VITE_GRAPHQL_URL;
-        const query = gql`query { getTreeCategories { id name  imageUrl } }`;
-        const data = await request(endpoint, query);
-        this.categories = data.getTreeCategories || [];
-        this.$nextTick(() => this.updateCategoryScrollArrows());
-      } catch (err) {
-        console.error("Categories fetch error", err);
+        const query = gql`
+          query {
+            getTreeCategories {
+              id
+              name
+              imageUrl
+            }
+          }
+        `;
+        const res = await request(endpoint, query);
+        this.categories = res.getTreeCategories || [];
+        this.$nextTick(this.updateCategoryScrollArrows);
+      } catch (e) {
+        console.error("Category fetch error", e);
       }
     },
-    async fetchProducts(categoryId = null) {
+
+    async fetchProducts() {
       const endpoint = import.meta.env.VITE_GRAPHQL_URL;
+
       for (const section of this.sections) {
         section.loading = true;
         section.products = [];
-        let query, variables = { first: 12, page: 1 };
-        if (categoryId) {
-          query = gql`
-            query ProductsByCategory($first:Int!,$page:Int!,$categoryId:String!){
-              products(first:$first,page:$page,orderBy:[{column:"created_at",order:DESC}], category_id:$categoryId){
-                data { id name imageUrl minimum_order_quantity rate category {name} }
-              }
-            }
-          `;
-          variables.categoryId = categoryId;
-        } else {
-          query = gql`
-            query AllProducts($first:Int!,$page:Int!){
-              products(first:$first,page:$page,orderBy:[{column:"created_at",order:DESC}]) {
-                data { id name imageUrl minimum_order_quantity rate category {name} }
-              }
-            }
-          `;
-        }
+
         try {
-          const res = await request(endpoint, query, variables);
-          section.products = (res.products?.data || []).map(p => ({
-            id: p.id,
-            name: p.name,
-            imageSrc: p.imageUrl || "https://via.placeholder.com/150",
-            categoryName: p.category?.name || "N/A",
-            minimum_order_quantity: p.minimum_order_quantity,
-            rate: p.rate || 0
-          }));
-        } catch (err) {
-          console.error(`Products fetch error for section ${section.id}`, err);
+          let res;
+
+          /** ================= POPULAR PRODUCTS ================= */
+          if (section.id === 1) {
+            const query = gql`
+              query PopularProducts($first: Int, $page: Int, $start_date: DateTime, $end_date: DateTime) {
+                popularProducts(
+                  first: $first
+                  page: $page
+                  start_date: $start_date
+                  end_date: $end_date
+                ) {
+                  data {
+                    id
+                    name
+                    total_reviews
+                    sold_count
+                  }
+                }
+              }
+            `;
+            res = await request(endpoint, query, {
+              first: 10,
+              page: 1,
+              start_date: null,
+              end_date: null,
+            });
+
+            section.products = res.popularProducts.data.map(p => ({
+              id: p.id,
+              name: p.name,
+              imageSrc: null,
+              minimum_order_quantity: "-",
+              rate: p.total_reviews ? 4 : 0
+            }));
+          }
+
+          /** ================= MOST SOLD PRODUCTS ================= */
+          else if (section.id === 2) {
+            const query = gql`
+              query MostSellingProducts($first: Int, $page: Int, $start_date: DateTime, $end_date: DateTime) {
+                mostSellingProducts(
+                  first: $first
+                  page: $page
+                  start_date: $start_date
+                  end_date: $end_date
+                ) {
+                  data {
+                    id
+                    name
+                    sold_count
+                  }
+                }
+              }
+            `;
+            res = await request(endpoint, query, {
+              first: 5,
+              page: 1,
+            });
+
+            section.products = res.mostSellingProducts.data.map(p => ({
+              id: p.id,
+              name: p.name,
+              imageSrc: null,
+              minimum_order_quantity: "-",
+              rate: 4
+            }));
+          }
+
+          /** ================= NEW PRODUCTS ================= */
+          else {
+            const query = gql`
+              query NewProducts($first: Int!, $page: Int!) {
+                products(
+                  first: $first
+                  page: $page
+                  orderBy: [{ column: "created_at", order: DESC }]
+                ) {
+                  data {
+                    id
+                    name
+                    imageUrl
+                    minimum_order_quantity
+                    rate
+                  }
+                }
+              }
+            `;
+            res = await request(endpoint, query, { first: 12, page: 1 });
+
+            section.products = res.products.data.map(p => ({
+              id: p.id,
+              name: p.name,
+              imageSrc: p.imageUrl,
+              minimum_order_quantity: p.minimum_order_quantity,
+              rate: p.rate || 0
+            }));
+          }
+        } catch (e) {
+          console.error(`Error loading section ${section.id}`, e);
         } finally {
           section.loading = false;
           this.$nextTick(() => this.updateProductScrollArrows(section.id));
@@ -309,6 +404,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .flex::-webkit-scrollbar { display: none; }
