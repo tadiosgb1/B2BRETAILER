@@ -1,208 +1,293 @@
 <template>
-  <div class="h-screen flex flex-col overflow-hidden">
-  <Header class="fixed top-0 w-full z-50 shadow-md bg-white "/>
-  <main class="flex-1 overflow-y-auto ">
+  <div class="h-screen flex flex-col overflow-hidden bg-gray-50">
+    <!-- Header -->
+    <Header class="fixed top-0 w-full z-50 shadow bg-white" />
 
-  <div class="min-h-screen flex flex-col bg-gray-50">
-    <main class="container mx-auto p-6 flex-1">
-      <!-- Header + Search -->
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-        <h1 class="text-3xl font-bold text-gray-800 border-b pb-2 flex-1">
-          My Orders
-        </h1>
-        <input
-          v-model="searchQuery"
-          @input="orderPage = 1; fetchOrders()"
-          type="text"
-          placeholder="Search by order code..."
-          class="border rounded px-3 py-1 w-full sm:w-64 text-sm"
-        />
-      </div>
+    <!-- Main -->
+    <main class="flex-1 overflow-y-auto pt-20">
+      <div class="container mx-auto px-6 pb-10">
 
-      <!-- Status Filter -->
-      <div class="flex flex-wrap gap-2 mb-4">
-        <button
-          v-for="status in statuses"
-          :key="status.value"
-          @click="changeStatus(status.value)"
-          :class="[
-            'px-3 py-1 rounded-full text-xs font-semibold transition',
-            selectedStatus === status.value
-              ? 'bg-orange-600 text-white'
-              : 'bg-orange-200 text-orange-800 hover:bg-orange-300'
-          ]"
-        >
-          {{ status.label }}
-        </button>
-      </div>
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+          <h1 class="text-3xl font-semibold text-gray-800">
+            My Orders
+          </h1>
 
-      <!-- Loading -->
-      <div v-if="loading" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl shadow-lg text-center">
-          <div class="loader mb-3 mx-auto"></div>
-          Loading your orders...
-        </div>
-      </div>
-
-      <!-- Empty -->
-      <div v-else-if="orders.length === 0" class="text-center py-6 text-gray-500 text-sm">
-        No orders found.
-      </div>
-
-      <!-- Orders List -->
-      <div v-else class="flex flex-col gap-2 overflow-x-auto">
-        <div
-          v-for="order in orders"
-          :key="order.id"
-          class="bg-white shadow p-2 rounded-lg border border-gray-200 flex items-center gap-2 text-xs"
-        >
-          <!-- Order Fields Horizontal -->
-          <div class="flex flex-col min-w-[80px]">
-            <span class="text-gray-500 font-semibold">Order</span>
-            <span class="px-1 py-0.5 bg-gray-100 rounded">{{ order.order_code }}</span>
-          </div>
-
-          <div class="flex flex-col min-w-[70px]">
-            <span class="text-gray-500 font-semibold">Date</span>
-            <span class="px-1 py-0.5 bg-gray-100 rounded">{{ order.created_at_human }}</span>
-          </div>
-
-          <div class="flex flex-col min-w-[50px]">
-            <span class="text-gray-500 font-semibold">Items</span>
-            <span class="px-1 py-0.5 bg-blue-100 rounded">{{ order.productSkuCount }}</span>
-          </div>
-
-          <div class="flex flex-col min-w-[60px]">
-            <span class="text-gray-500 font-semibold">Status</span>
-            <span
-              class="px-1 py-0.5 rounded text-white font-bold"
-              :class="statusClass(order.status)"
+          <!-- Search -->
+          <div class="relative w-full sm:w-80">
+            <span class="absolute left-3 top-2.5 text-gray-400 text-sm"></span>
+            <input
+              v-model="searchQuery"
+              @input="onSearch"
+              type="text"
+              placeholder="Search by order code"
+              class="pl-9 pr-8 py-2 w-full border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            />
+            <button
+              v-if="searchQuery"
+              @click="clearSearch"
+              class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 text-xs"
             >
-              {{ order.status }}
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Status Filters -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <button
+            v-for="status in statuses"
+            :key="status.value"
+            @click="changeStatus(status.value)"
+            :class="[
+              'px-4 py-1.5 rounded-full text-xs font-medium transition',
+              selectedStatus === status.value
+                ? 'bg-orange-600 text-white shadow'
+                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+            ]"
+          >
+            {{ status.label }}
+          </button>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div v-if="loading" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div class="bg-white p-6 rounded-xl shadow-lg flex items-center gap-3">
+            <div class="loader"></div>
+            <span class="text-sm font-medium text-gray-700">
+              Loading orders...
             </span>
           </div>
+        </div>
 
-          <!-- Buttons -->
-          <div class="flex gap-2">
-            <!-- Ordered Products Button -->
+        <!-- Empty State -->
+        <div
+          v-else-if="orders.length === 0"
+          class="bg-white rounded-lg shadow-sm p-10 text-center text-gray-500"
+        >
+          No orders found.
+        </div>
+
+        <!-- Orders Table -->
+        <div v-else class="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-left">
+              <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
+                <tr>
+                  <th class="px-4 py-3">Order Code</th>
+                  <th class="px-4 py-3">Date</th>
+                  <th class="px-4 py-3 text-center">Items</th>
+                  <th class="px-4 py-3">Status</th>
+                  <th class="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y">
+                <tr
+                  v-for="order in orders"
+                  :key="order.id"
+                  class="hover:bg-gray-50 transition"
+                >
+                  <!-- Order Code -->
+                  <td class="px-4 py-3 font-medium text-gray-800">
+                    {{ order.order_code }}
+                  </td>
+
+                  <!-- Date -->
+                  <td class="px-4 py-3 text-gray-600">
+                    {{ order.created_at_human }}
+                  </td>
+
+                  <!-- Items -->
+                  <td class="px-4 py-3 text-center">
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+                      {{ order.productSkuCount }}
+                    </span>
+                  </td>
+
+                  <!-- Status -->
+             <td class="px-4 py-3">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-semibold text-white"
+                :class="statusClass(order.status)"
+              >
+                {{
+                  order.status
+                    .replace(/_/g, ' ')
+                    .toLowerCase()
+                    .replace(/\b\w/g, char => char.toUpperCase())
+                }}
+              </span>
+            </td>
+
+
+                  <!-- Actions -->
+                  <td class="px-4 py-3 text-right">
+                    <div class="flex justify-end gap-2">
+                      <button
+                        @click="openProductsModal(order)"
+                        class="px-3 py-1.5 border border-orange-600 text-orange-600 rounded-md text-xs hover:bg-orange-600 hover:text-white transition"
+                      >
+                        View Ordered Products
+                      </button>
+
+                      <button
+                        @click="openReturnForm(order.items[0].id)"
+                        class="px-3 py-1.5 border border-green-600 text-green-600 rounded-md text-xs hover:bg-green-600 hover:text-white transition"
+                      >
+                        Return Product
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination (Right Aligned) -->
+          <div class="flex justify-end items-center gap-3 px-4 py-3 border-t bg-gray-50 text-sm">
             <button
-              class="px-2 py-1 border-2 border-orange-600 text-orange-600 text-xs rounded hover:bg-orange-600 hover:text-white transition"
-              @click="openProductsModal(order)"
+              class="px-3 py-1.5 border rounded disabled:opacity-50"
+              :disabled="orderPage === 1"
+              @click="orderPage--"
             >
-              Ordered Products
+              Prev
             </button>
 
-            <!-- Return Product Button -->
+            <span class="font-medium text-gray-700">
+              Page {{ orderPage }} of {{ totalOrderPages }}
+            </span>
+
             <button
-              class="px-2 py-1 border-2 border-green-600 text-green-600 text-xs rounded hover:bg-green-600 hover:text-white transition"
-              @click="openReturnForm(order.items[0].id)"
+              class="px-3 py-1.5 border rounded disabled:opacity-50"
+              :disabled="orderPage === totalOrderPages"
+              @click="orderPage++"
             >
-              Return Product
+              Next
             </button>
           </div>
         </div>
-
-        <!-- Pagination -->
-        <div class="flex justify-center items-center gap-2 mt-2 text-sm">
-          <button
-            class="px-2 py-1 border rounded text-gray-700 disabled:opacity-50"
-            :disabled="orderPage === 1"
-            @click="orderPage--"
-          >
-            Prev
-          </button>
-
-          <span class="px-2 py-1 font-semibold text-gray-800">
-            Page {{ orderPage }} / {{ totalOrderPages }}
-          </span>
-
-          <button
-            class="px-2 py-1 border rounded text-gray-700 disabled:opacity-50"
-            :disabled="orderPage === totalOrderPages"
-            @click="orderPage++"
-          >
-            Next
-          </button>
-        </div>
       </div>
+
+      <Footer />
     </main>
 
-    <Footer />
-  </div>
-
-  <!-- PRODUCTS MODAL -->
-  <transition name="slide-right">
-    <div
-      v-if="showProductsModal && selectedOrder"
-      class="fixed inset-0 bg-black/40 flex justify-end z-50 "
-    >
-      <div class="bg-white w-full sm:max-w-md h-full shadow-xl p-4 overflow-y-auto relative">
-        <button
-          class="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-          @click="showProductsModal = false"
-        >
-          ✕
-        </button>
-        <h3 class="text-lg font-bold mb-3">Ordered Products</h3>
-        <div class="flex flex-col gap-2">
-          <div
-            v-for="item in selectedOrder.items ?? []"
-            :key="item.id"
-            class="flex items-center gap-2 text-xs bg-gray-50 p-2 rounded"
+    <!--Ordered  PRODUCTS MODAL -->
+    <transition name="slide-right">
+      <div
+        v-if="showProductsModal && selectedOrder"
+        class="fixed inset-0 bg-black/40 flex justify-end z-50"
+      >
+        <div class="bg-white w-full sm:max-w-md h-full shadow-xl p-5 overflow-y-auto relative">
+          <button
+            class="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+            @click="showProductsModal = false"
           >
-            <img
-              v-if="item.product_sku?.product?.imageUrl"
-              :src="item.product_sku.product.imageUrl"
-              class="w-12 h-12 object-cover rounded"
-            />
-            <div class="flex flex-col">
-              <span class="font-semibold">{{ item.product_sku?.product?.name ?? "Unnamed" }}</span>
-              <span class="text-gray-500">SKU: {{ item.product_sku?.sku ?? "-" }}</span>
-              <span class="text-gray-500">Qty: {{ item.quantity ?? "-" }}</span>
+            ✕
+          </button>
+
+          <h3 class="text-lg font-semibold mb-4">
+            Ordered Products
+          </h3>
+
+          <div class="space-y-3">
+            <div
+              v-for="item in selectedOrder.items ?? []"
+              :key="item.id"
+              class="flex items-center gap-3 bg-gray-50 p-3 rounded-lg"
+            >
+              <img
+                v-if="item.product_sku?.product?.imageUrl"
+                :src="item.product_sku.product.imageUrl"
+                class="w-14 h-14 rounded object-cover border"
+              />
+
+              <div>
+                <p class="font-semibold text-sm">
+                  {{ item.product_sku?.product?.name ?? "Unnamed" }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  SKU: {{ item.product_sku?.sku ?? "-" }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  Qty: {{ item.quantity ?? "-" }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </transition>
+    </transition>
 
+    <!-- RETURN MODAL -->
   <!-- RETURN MODAL -->
-  <div v-if="showReturnModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 w-full max-w-md">
-      <h3 class="text-xl font-bold mb-4">Return Product</h3>
+    <transition name="slide-right">
+      <div
+        v-if="showReturnModal"
+        class="fixed inset-0 bg-black/40 flex justify-end z-50"
+      >
+        <div class="bg-white w-full sm:max-w-md h-full shadow-xl p-6 relative">
 
-      <label class="block mb-2 text-sm font-semibold">Quantity</label>
-      <input
-        type="number"
-        min="1"
-        v-model="returnForm.quantity"
-        class="w-full border rounded-lg px-3 py-2 mb-3"
-      />
+          <!-- Close Button -->
+          <button
+            class="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+            @click="showReturnModal = false"
+          >
+            ✕
+          </button>
 
-      <label class="block mb-2 text-sm font-semibold">Reason</label>
-      <textarea
-        v-model="returnForm.reason"
-        class="w-full border rounded-lg px-3 py-2 mb-4"
-      ></textarea>
+          <h3 class="text-xl font-semibold mb-6 text-gray-800">
+            Return Product
+          </h3>
 
-      <div class="flex justify-end gap-3">
-        <button
-          class="px-4 py-2 rounded-lg border"
-          @click="showReturnModal = false"
-        >
-          Cancel
-        </button>
-        <button
-          class="px-4 py-2 rounded-lg border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition"
-          @click="submitReturn"
-        >
-          Submit Return
-        </button>
+          <!-- Quantity -->
+          <label class="block text-sm font-medium mb-1 text-gray-700">
+            Quantity
+          </label>
+          <input
+            type="number"
+            min="1"
+            v-model="returnForm.quantity"
+            class="w-full border rounded-lg px-3 py-2 mb-4
+                  focus:ring-2 focus:ring-orange-500 focus:border-orange-500
+                  focus:outline-none"
+          />
+
+          <!-- Reason -->
+          <label class="block text-sm font-medium mb-1 text-gray-700">
+            Reason
+          </label>
+          <textarea
+            v-model="returnForm.reason"
+            rows="4"
+            class="w-full border rounded-lg px-3 py-2 mb-6
+                  focus:ring-2 focus:ring-orange-500 focus:border-orange-500
+                  focus:outline-none"
+          ></textarea>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3">
+            <button
+              class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition"
+              @click="showReturnModal = false"
+            >
+              Cancel
+            </button>
+
+            <button
+              class="px-4 py-2 border-2 border-orange-600 text-orange-600 rounded-lg
+                    hover:bg-orange-600 hover:text-white transition"
+              @click="submitReturn"
+            >
+              Submit Return
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </transition>
+
+
   </div>
-</main>
-</div>
 </template>
 
 <script>

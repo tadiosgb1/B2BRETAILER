@@ -111,10 +111,10 @@
               <div
                 v-for="product in section.products"
                 :key="product.id"
-                class="w-48 min-h-[420px] flex flex-col flex-shrink-0 bg-white rounded-lg shadow-md hover:shadow-lg p-3 cursor-pointer transition relative mb-4"
+                class="w-48 min-h-[330px] flex flex-col flex-shrink-0 bg-white rounded-lg shadow-md hover:shadow-lg p-3 cursor-pointer transition relative mb-4"
               >
                 <!-- Image -->
-                <div class="relative w-full h-56 mb-2 group bg-gray-50 rounded">
+                <div class="relative w-full h-56 mb-2 group  rounded">
                   <img
                     :src="proxiedImage(product.imageSrc,'product',product.name)"
                     :alt="product.name"
@@ -312,6 +312,9 @@ export default {
                     name
                     total_reviews
                     sold_count
+                    imageUrl
+                    minimum_order_quantity
+                    rate
                   }
                 }
               }
@@ -326,9 +329,9 @@ export default {
             section.products = res.popularProducts.data.map(p => ({
               id: p.id,
               name: p.name,
-              imageSrc: null,
-              minimum_order_quantity: "-",
-              rate: p.total_reviews ? 4 : 0
+               imageSrc: p.imageUrl,
+              minimum_order_quantity: p.minimum_order_quantity,
+              rate: p.rate || 0
             }));
           }
 
@@ -346,6 +349,9 @@ export default {
                     id
                     name
                     sold_count
+                    imageUrl
+                    minimum_order_quantity
+                    rate
                   }
                 }
               }
@@ -358,9 +364,9 @@ export default {
             section.products = res.mostSellingProducts.data.map(p => ({
               id: p.id,
               name: p.name,
-              imageSrc: null,
-              minimum_order_quantity: "-",
-              rate: 4
+              imageSrc: p.imageUrl,
+              minimum_order_quantity: p.minimum_order_quantity,
+              rate: p.rate || 0
             }));
           }
 

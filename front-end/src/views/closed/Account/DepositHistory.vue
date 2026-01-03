@@ -1,138 +1,190 @@
 <template>
-  <div class="p-4">
-    <h2 class="text-2xl font-bold mb-6">Deposit History</h2>
+  <div class="container mx-auto px-6 py-8 bg-gray-50 min-h-screen">
+
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <h2 class="text-3xl font-semibold text-gray-800">
+        Deposit History
+      </h2>
+    </div>
 
     <!-- Tabs -->
     <div class="flex gap-2 mb-6">
       <button
         @click="activeTab='slip'"
-        :class="activeTab==='slip' ? activeTabClass : inactiveTabClass"
-        class="px-4 py-2 rounded text-sm"
+        :class="[
+          'px-5 py-2 rounded-full text-sm font-medium transition',
+          activeTab === 'slip'
+            ? 'bg-orange-600 text-white shadow'
+            : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+        ]"
       >
         Slip Deposits
       </button>
+
       <button
         @click="activeTab='telebirr'"
-        :class="activeTab==='telebirr' ? activeTabClass : inactiveTabClass"
-        class="px-4 py-2 rounded text-sm"
+        :class="[
+          'px-5 py-2 rounded-full text-sm font-medium transition',
+          activeTab === 'telebirr'
+            ? 'bg-orange-600 text-white shadow'
+            : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+        ]"
       >
         Telebirr Deposits
       </button>
     </div>
 
-    <!-- SLIP DEPOSITS -->
-    <div v-if="activeTab==='slip'" class="flex flex-col gap-2">
-      <div v-if="paginatedSlip.length === 0" class="text-gray-500 text-sm">
+    <!-- SLIP DEPOSITS TABLE -->
+    <div v-if="activeTab === 'slip'">
+
+      <div
+        v-if="paginatedSlip.length === 0"
+        class="bg-white p-10 rounded-lg shadow-sm text-center text-gray-500"
+      >
         No slip deposits found.
       </div>
 
-      <div
-        v-for="d in paginatedSlip"
-        :key="d.id"
-        class="bg-white shadow p-3 rounded-lg border border-gray-200 flex gap-4 overflow-x-auto"
-      >
-    
+      <div v-else class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
+              <tr>
+                <th class="px-4 py-3 text-left">Reference</th>
+                <th class="px-4 py-3 text-left">Amount</th>
+                <th class="px-4 py-3 text-left">Confirmed By</th>
+                <th class="px-4 py-3 text-left">Confirmed At</th>
+                <th class="px-4 py-3 text-left">Created At</th>
+              </tr>
+            </thead>
 
-        <div class="flex flex-col text-xs min-w-[90px]">
-          <span class="text-gray-500 font-semibold">Reference</span>
-          <span class="px-1 py-0.5 bg-gray-100 rounded">{{ d.reference_number }}</span>
+            <tbody class="divide-y">
+              <tr
+                v-for="d in paginatedSlip"
+                :key="d.id"
+                class="hover:bg-gray-50 transition"
+              >
+                <td class="px-4 py-3 font-medium text-gray-800">
+                  {{ d.reference_number }}
+                </td>
+
+                <td class="px-4 py-3">
+                  <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                    {{ d.amount }} ETB
+                  </span>
+                </td>
+
+                <td class="px-4 py-3 text-gray-600">
+                  {{ d.confirmed_by ?? "Pending" }}
+                </td>
+
+                <td class="px-4 py-3 text-gray-600">
+                  {{ formatDate(d.confirmed_at) }}
+                </td>
+
+                <td class="px-4 py-3 text-gray-600">
+                  {{ formatDate(d.created_at) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div class="flex flex-col text-xs min-w-[90px]">
-          <span class="text-gray-500 font-semibold">Amount</span>
-          <span class="px-1 py-0.5 bg-green-100 rounded">{{ d.amount }} ETB</span>
+        <!-- Pagination -->
+        <div class="flex justify-end items-center gap-3 px-4 py-3 border-t bg-gray-50 text-sm">
+          <button
+            class="px-3 py-1.5 border rounded disabled:opacity-50"
+            :disabled="slipPage === 1"
+            @click="slipPage--"
+          >
+            Prev
+          </button>
+
+          <span class="font-medium text-gray-700">
+            Page {{ slipPage }} of {{ totalSlipPages }}
+          </span>
+
+          <button
+            class="px-3 py-1.5 border rounded disabled:opacity-50"
+            :disabled="slipPage === totalSlipPages"
+            @click="slipPage++"
+          >
+            Next
+          </button>
         </div>
-
-        <div class="flex flex-col text-xs min-w-[90px]">
-          <span class="text-gray-500 font-semibold">Confirmed By</span>
-          <span class="px-1 py-0.5 bg-blue-100 rounded">{{ d.confirmed_by ?? "Pending" }}</span>
-        </div>
-
-        <div class="flex flex-col text-xs min-w-[120px]">
-          <span class="text-gray-500 font-semibold">Confirmed At</span>
-          <span class="px-1 py-0.5 bg-purple-100 rounded">{{ formatDate(d.confirmed_at) }}</span>
-        </div>
-
-        <div class="flex flex-col text-xs min-w-[120px]">
-          <span class="text-gray-500 font-semibold">Created At</span>
-          <span class="px-1 py-0.5 bg-gray-100 rounded">{{ formatDate(d.created_at) }}</span>
-        </div>
-      </div>
-
-      <!-- Pagination -->
-      <div class="flex justify-center items-center gap-2 mt-2 text-sm">
-        <button
-          class="px-2 py-1 border rounded text-gray-700 disabled:opacity-50"
-          :disabled="slipPage === 1"
-          @click="slipPage--"
-        >
-          Prev
-        </button>
-
-        <span class="px-2 py-1 font-semibold text-gray-800">
-          Page {{ slipPage }} / {{ totalSlipPages }}
-        </span>
-
-        <button
-          class="px-2 py-1 border rounded text-gray-700 disabled:opacity-50"
-          :disabled="slipPage === totalSlipPages"
-          @click="slipPage++"
-        >
-          Next
-        </button>
       </div>
     </div>
 
-    <!-- TELEBIRR DEPOSITS -->
-    <div v-if="activeTab==='telebirr'" class="flex flex-col gap-2">
-      <div v-if="paginatedTelebirr.length === 0" class="text-gray-500 text-sm">
+    <!-- TELEBIRR DEPOSITS TABLE -->
+    <div v-if="activeTab === 'telebirr'">
+
+      <div
+        v-if="paginatedTelebirr.length === 0"
+        class="bg-white p-10 rounded-lg shadow-sm text-center text-gray-500"
+      >
         No Telebirr deposits found.
       </div>
 
-      <div
-        v-for="t in paginatedTelebirr"
-        :key="t.id"
-        class="bg-white shadow p-3 rounded-lg border border-gray-200 flex gap-4 overflow-x-auto"
-      >
-        <div class="flex flex-col text-xs min-w-[90px]">
-          <span class="text-gray-500 font-semibold">Txn</span>
-          <span class="px-1 py-0.5 bg-orange-100 rounded">{{ t.txn_ref }}</span>
+      <div v-else class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
+              <tr>
+                <th class="px-4 py-3 text-left">Transaction Ref</th>
+                <th class="px-4 py-3 text-left">Amount</th>
+                <th class="px-4 py-3 text-left">Created At</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y">
+              <tr
+                v-for="t in paginatedTelebirr"
+                :key="t.id"
+                class="hover:bg-gray-50 transition"
+              >
+                <td class="px-4 py-3 font-medium text-gray-800">
+                  {{ t.txn_ref }}
+                </td>
+
+                <td class="px-4 py-3">
+                  <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                    {{ t.amount }} ETB
+                  </span>
+                </td>
+
+                <td class="px-4 py-3 text-gray-600">
+                  {{ formatDate(t.created_at) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div class="flex flex-col text-xs min-w-[90px]">
-          <span class="text-gray-500 font-semibold">Amount</span>
-          <span class="px-1 py-0.5 bg-green-100 rounded">{{ t.amount }} ETB</span>
+        <!-- Pagination -->
+        <div class="flex justify-end items-center gap-3 px-4 py-3 border-t bg-gray-50 text-sm">
+          <button
+            class="px-3 py-1.5 border rounded disabled:opacity-50"
+            :disabled="telebirrPage === 1"
+            @click="telebirrPage--"
+          >
+            Prev
+          </button>
+
+          <span class="font-medium text-gray-700">
+            Page {{ telebirrPage }} of {{ totalTelebirrPages }}
+          </span>
+
+          <button
+            class="px-3 py-1.5 border rounded disabled:opacity-50"
+            :disabled="telebirrPage === totalTelebirrPages"
+            @click="telebirrPage++"
+          >
+            Next
+          </button>
         </div>
-
-        <div class="flex flex-col text-xs min-w-[120px]">
-          <span class="text-gray-500 font-semibold">Created At</span>
-          <span class="px-1 py-0.5 bg-gray-100 rounded">{{ formatDate(t.created_at) }}</span>
-        </div>
-      </div>
-
-      <!-- Pagination -->
-      <div class="flex justify-center items-center gap-2 mt-2 text-sm">
-        <button
-          class="px-2 py-1 border rounded text-gray-700 disabled:opacity-50"
-          :disabled="telebirrPage === 1"
-          @click="telebirrPage--"
-        >
-          Prev
-        </button>
-
-        <span class="px-2 py-1 font-semibold text-gray-800">
-          Page {{ telebirrPage }} / {{ totalTelebirrPages }}
-        </span>
-
-        <button
-          class="px-2 py-1 border rounded text-gray-700 disabled:opacity-50"
-          :disabled="telebirrPage === totalTelebirrPages"
-          @click="telebirrPage++"
-        >
-          Next
-        </button>
       </div>
     </div>
+
   </div>
 </template>
 

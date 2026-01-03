@@ -119,13 +119,13 @@
   <div
     v-for="product in productsGrid"
     :key="product.id"
-    class="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md cursor-pointer flex flex-col min-h-[520px]"
+    class="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md cursor-pointer flex flex-col min-h-[450px]"
   >
 
     <!-- PRODUCT IMAGE (NO CROP, TALL) -->
     <div
       @click="goToProductDetail(product)"
-      class="relative w-full h-56 bg-gray-100 rounded flex items-center justify-center"
+      class="relative w-full h-56 rounded flex items-center justify-center"
     >
       <img
         :src="proxiedImage(product.imageSrc)"
@@ -188,7 +188,7 @@
     <!-- ADD TO CART BUTTON -->
     <button
       @click.stop="openWarehouseModal(product)"
-      class="mt-12 mb-3 rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-primary hover:bg-orange-100"
+      class="mt-4 mb-3 rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-primary hover:bg-orange-100"
     >
       Add to Cart
     </button>
