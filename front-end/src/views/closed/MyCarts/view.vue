@@ -67,7 +67,7 @@
         :key="vehicle.id"
         :value="vehicle.id"
       >
-        {{ vehicle.title }} – starting: {{ vehicle.starting_price }} ETB
+        {{ vehicle.title }} – starting: {{ this.$formatPrice(vehicle.starting_price) }} ETB
       </option>
     </select>
   </div>
@@ -106,7 +106,7 @@
       </div>
 
       <div class="text-sm text-gray-500">
-        Price: {{ item.price }} ETB
+        Price: {{ this.$formatPrice(item.price) }} ETB
       </div>
 
       <!-- ⚠️ Warning -->

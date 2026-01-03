@@ -191,7 +191,7 @@
 
     <span
       v-if="cardsCout > 0"
-      class="absolute top-0 right-0 -mt-1 -mr-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+      class="absolute -top-1 right-0 -mt-1 -mr-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
     >
       {{ cardsCout }}
     </span>

@@ -15,12 +15,12 @@
   <!-- Balance + Toggle -->
   <div class="flex items-center gap-4 w-full sm:w-auto">
     <div class="text-lg font-semibold tracking-wide text-primary">
-      {{ showBalance ? walletBalance + " ETB" : "••••• ETB" }}
+       {{showBalance ?  this.$formatPrice(walletBalance) + " ETB" : "••••• ETB" }}
     </div>
 
     <button
       @click="toggleBalance"
-      class="text-primary hover:text-orange-900 transition"
+      class="text-blue-500 hover:text-orange-900 transition"
       aria-label="Toggle balance visibility"
     >
       <i :class="showBalance ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>

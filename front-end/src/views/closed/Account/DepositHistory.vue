@@ -70,7 +70,7 @@
 
                 <td class="px-4 py-3">
                   <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                    {{ d.amount }} ETB
+                    {{  this.$formatPrice(d.amount) }} ETB
                   </span>
                 </td>
 
@@ -148,7 +148,7 @@
 
                 <td class="px-4 py-3">
                   <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                    {{ t.amount }} ETB
+                    {{  this.$formatPrice(t.amount) }} ETB
                   </span>
                 </td>
 

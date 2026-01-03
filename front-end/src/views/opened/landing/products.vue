@@ -148,7 +148,7 @@
     <div class="flex items-center justify-between w-full mt-2">
       <p class="inline-block bg-orange-100 text-dark text-xs font-semibold px-2 py-1 rounded-full">
         <span class="text-primary text-lg">
-          {{ product.skus[0]?.sell_price }}
+          {{ this.$formatPrice(product.skus[0]?.sell_price) }}
         </span>
         ETB
       </p>

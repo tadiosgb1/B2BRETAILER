@@ -113,7 +113,7 @@
                 <div>
                   <span
                     class="inline-flex items-center px-4 py-2 text-md text-orange-800 bg-orange-200 rounded-lg shadow-md shadow-orange-300/50">
-                    {{ formattedPrice }} ETB
+                    {{ this.$formatPrice(product.skus[0]?.sell_price ?? 0) }} ETB
                   </span>
                 </div>
 

@@ -10,6 +10,15 @@ export function reloadPage() {
   }, 2000);
 }
 
+export function formatPrice(value) {
+  if (value === null || value === undefined || value === '') return '';
+
+  const number = Number(value);
+  if (isNaN(number)) return value;
+
+  return number.toLocaleString('en-US');
+}
+
 export function proxiedImage(url) {
   // Default placeholder
   if (!url || url.trim() === '') {

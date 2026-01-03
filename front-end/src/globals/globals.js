@@ -6,7 +6,7 @@ import {
   gregorianToEthiopian, getPdfBlobUrl, base64ToFile,
   processFilesToAdd, triggerFileInput, handleFileInput, toggleDragState, removeAttachment,
   handleAnyFileInput, convertImageToBase64, getFullNameById, getZones, getProperties, getManagers, hasPermission,getTenants,getCoworkingSpaces,getWorkspaceRentals,getWorkspacePayments
-,proxiedImage} from "../utils/utils"; // Adjust the path to match your project structure
+,proxiedImage,formatPrice} from "../utils/utils"; // Adjust the path to match your project structure
 export default {
 
   install(app) {
@@ -94,7 +94,8 @@ export default {
       $getCoworkingSpaces:getCoworkingSpaces,
       $getWorkspaceRentals:getWorkspaceRentals,
       $getWorkspacePayments:getWorkspacePayments,
-      $proxiedImage:proxiedImage
+      $proxiedImage:proxiedImage,
+      $formatPrice:formatPrice
     };
     // Assign to the global properties in the Vue app
     app.config.globalProperties = {
